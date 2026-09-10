@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rural Pastagem · Planejamento e Compra</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f2e9;--bg2:#ffffff;--bg3:#f7f7f5;
+  --brd:#d7ddd8;--brd2:#aeb9b1;--border:#d7ddd8;
+  --blu:#173c2b;--blu2:#244b35;--blu3:#376b45;
+  --gld:#c99a3b;--gld2:#e4bd61;--grn:#376b45;--red:#a63d2f;--pur:#6f5b8f;
+  --txt:#1e2b23;--txt2:#34463a;--txt3:#6b756f;--mono:Arial,'Segoe UI',sans-serif;
+}
+body.light{
+  --bg:#f5f2e9;--bg2:#ffffff;--bg3:#f7f7f5;--brd:#d7ddd8;--brd2:#aeb9b1;--border:#d7ddd8;
+  --blu:#173c2b;--blu2:#244b35;--blu3:#376b45;--gld:#c99a3b;--gld2:#e4bd61;
+  --grn:#376b45;--red:#a63d2f;--pur:#6f5b8f;--txt:#1e2b23;--txt2:#34463a;--txt3:#6b756f;
+}
+body.light .htitle{color:#fff!important}
+body.light .hfazenda{color:var(--gld)}
+body.light select,body.light input[type=text],body.light input[type=number],body.light input[type=date]{color:#111}
+body.light .lotestbl tr.compra td{background:#eef3fb}
+body.light .lotestbl tr.compra.excluida td{background:#eee;opacity:.7}
+body{background:var(--bg);color:var(--txt);font-family:Arial,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+.hdr{background:var(--blu);color:#fff;border-bottom:3px solid var(--gld);padding:10px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;flex-wrap:wrap;box-shadow:0 2px 14px #0002}
+.htitle{font-weight:700;font-size:15px;color:#FFFFFF;font-family:var(--mono);letter-spacing:.3px}
+.htitle .rna{color:var(--gld)}
+.hsub{font-size:10px;color:var(--txt3);margin-top:1px;font-family:var(--mono)}
+.hfazenda{font-size:13px;color:var(--gld);font-weight:700;font-family:var(--mono);margin-top:2px}
+.hbtns{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hind{font-size:10px;color:var(--txt3);font-family:var(--mono)}
+.hbtn{border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--mono)}
+.hbs{background:#ffffff12;color:#fff;border:1px solid #ffffff55}.hbs:hover{background:#ffffff25}
+.hbr{background:#fff;color:var(--red);border:1px solid #dcbab4}.hbr:hover{background:#f9e5e2}
+.hbp{background:var(--blu);color:#fff;border:1px solid var(--blu2)}.hbp:hover{background:var(--blu2)}
+.pg .hbs{background:#fff;color:var(--blu);border:1px solid #b8c5bd}.pg .hbs:hover{background:#eef3ef}
+.nav{position:fixed;left:0;top:78px;bottom:0;width:235px;background:var(--blu);display:flex;flex-direction:column;overflow-y:auto;padding:16px 12px;box-shadow:4px 0 18px #0002;z-index:90}.nav:before{content:'PLANEJAMENTO';color:#ffffff88;font-size:9px;font-weight:900;letter-spacing:1.5px;padding:0 12px 11px}
+.nb{background:none;border:1px solid transparent;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:800;color:#ffffffb8;cursor:pointer;white-space:normal;text-align:left;transition:all .2s;font-family:var(--mono);margin-bottom:4px}.nb.active{color:#263126;background:var(--gld2);border-color:#efd184}.nb:hover:not(.active){color:#fff;background:#ffffff12}
+.pg{display:none;padding:18px 22px;max-width:1550px;margin-left:235px}.pg.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--brd);border-radius:20px;padding:14px 16px;margin-bottom:12px;box-shadow:0 8px 26px #0000000c}
+.card.compact{padding:9px 12px;margin-bottom:8px}
+.card.compact .ct{margin-bottom:7px;padding-bottom:5px}
+.card.compact .fld{margin-bottom:5px}
+.card.compact .fld label{font-size:9px;margin-bottom:2px}
+.card.compact .bw input,.card.compact select{padding:4px 6px;font-size:12px}
+.card.compact .bp{font-size:13px;padding:0 7px}
+.ct{font-size:10px;font-weight:700;color:var(--txt3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px;font-family:var(--mono);flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;font-family:var(--mono)}
+.bw{display:flex;align-items:stretch}
+.bp{background:var(--blu);border:1px solid var(--blu2);color:#fff;font-size:16px;font-weight:700;padding:0 10px;cursor:pointer;flex-shrink:0;line-height:1;font-family:var(--mono)}
+.bp:first-child{border-radius:6px 0 0 6px;border-right:none}
+.bp:last-child{border-radius:0 6px 6px 0;border-left:none}
+.bp:hover{background:var(--blu2)}
+.bw input[type=number],.bw input[type=text],.bw input[type=date]{flex:1;background:var(--bg3);border:1px solid var(--brd);border-left:none;border-right:none;padding:7px 9px;color:var(--txt);font-size:13px;font-weight:700;outline:none;min-width:0;border-radius:0;font-family:var(--mono)}
+input[type=text],input[type=date],select{background:var(--bg3);border:1px solid var(--brd);color:var(--txt);padding:7px 9px;border-radius:6px;font-size:13px;width:100%;outline:none;font-family:var(--mono)}
+.ibox{background:var(--bg3);border-radius:7px;padding:8px 11px;margin-bottom:10px;font-size:11px;color:var(--txt3);font-family:var(--mono);border-left:3px solid var(--blu2)}
+.ibox strong{color:var(--txt)}
+.hr{height:1px;background:var(--brd);margin:10px 0}
+.tblwrap{overflow-x:auto}
+table.curve{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11px}
+table.curve th{padding:6px 4px;text-align:center;font-weight:700;font-size:10px;background:var(--blu);color:#fff;white-space:nowrap}
+table.curve th.lbl{text-align:left;background:var(--bg3);color:var(--txt3);min-width:130px}
+table.curve td{padding:3px;text-align:center;border:1px solid var(--brd)}
+table.curve td.lbl{text-align:left;color:var(--txt3);background:var(--bg3);font-weight:700;padding:6px 8px;white-space:nowrap}
+table.curve td.base{color:var(--gld);font-weight:700;background:var(--bg3)}
+table.curve input{width:100%;background:var(--bg3);border:none;color:var(--txt);text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 2px;outline:none}
+table.curve input:focus{background:#14202e}
+.filebtn{display:inline-block;background:var(--blu);color:#fff;border:1px solid var(--blu2);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--mono)}
+.filebtn:hover{background:var(--blu2)}
+input[type=file]{display:none}
+.lotestbl{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11px}
+.lotestbl th{padding:6px 6px;text-align:center;font-weight:700;font-size:10px;background:var(--blu);color:#fff;white-space:nowrap;position:sticky;top:0}
+.lotestbl th.sortable{cursor:pointer;user-select:none}
+.lotestbl th.sortable:hover{color:var(--gld)}
+.lotestbl tr.selecionado td{background:rgba(201,154,59,.22)}
+.lotestbl th.name,.lotestbl td.name{text-align:left}
+.lotestbl td{padding:5px 6px;border-bottom:1px solid var(--brd);white-space:nowrap;text-align:center}
+.lotestbl tr:hover td{filter:brightness(1.15)}
+.lotestbl tr.compra td{background:#12203a}
+.lotestbl tr.compra.excluida td{background:#1a1a1a;opacity:.55}
+.lotestbl td.num{text-align:center;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;font-family:var(--mono);white-space:nowrap}
+.tag.ok{background:#e8f1e9;color:#245232;border:1px solid #77957e}
+.tag.late{background:#f9e5e2;color:#8a3026;border:1px solid #cd8f87}
+.tag.compra{background:#fff1d8;color:#84570c;border:1px solid #d2a65f}
+.tag.wait{background:#f3f5f2;color:var(--txt3);border:1px solid var(--brd)}
+.smbtn{background:var(--bg3);border:1px solid var(--brd);color:var(--txt3);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;font-family:var(--mono)}
+.smbtn:hover{color:var(--txt);border-color:var(--brd2)}
+.footer{background:var(--bg2);border-top:3px solid var(--gld);padding:10px 20px;text-align:center;font-size:11px;color:var(--txt3);font-family:var(--mono);margin:20px 0 0 235px}
+.footer strong{color:var(--gld)}
+.emptybox{text-align:center;padding:30px 10px;color:var(--txt3);font-family:var(--mono);font-size:12px}
+.kpi{margin-bottom:8px}
+.kl{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px;font-family:var(--mono)}
+.kv{font-weight:700;font-family:var(--mono);font-size:18px;color:var(--txt)}
+.kv.lg{font-size:24px}
+.gd{color:var(--gld)!important}.gn{color:var(--grn)!important}.rd{color:var(--red)!important}.pu{color:var(--pur)!important}
+.g4kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.kpibox{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:8px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.modal-sel{display:flex;gap:8px;margin-left:auto}
+.msbtn{border:1px solid var(--brd);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--txt3);text-align:center;transition:all .2s;font-family:var(--mono)}
+.msbtn.on{background:var(--blu);color:#fff;border-color:var(--blu2)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;font-family:var(--mono);color:var(--txt3);margin-top:8px}
+.flr{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.fll{font-size:10px;color:var(--txt2);min-width:80px;font-family:var(--mono)}
+.flb{flex:1;height:22px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.fli{height:100%;display:flex;align-items:center;padding:0 7px;font-size:10px;font-weight:700;font-family:var(--mono);white-space:nowrap}
+.flv{font-size:11px;font-family:var(--mono);font-weight:700;min-width:90px;text-align:right}
+.legend span.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+@media(max-width:900px){.nav{position:sticky;top:0;width:100%;height:auto;bottom:auto;flex-direction:row;overflow-x:auto;padding:7px 9px}.nav:before{display:none}.nb{white-space:nowrap;margin-right:4px}.pg{margin-left:0;padding:12px}.footer{margin-left:0}.hdr{position:relative}}
+@media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr}.pg{padding:10px 9px}.g4kpi{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <span style="font-size:22px">🌱</span>
+  <div>
+    <div class="htitle"><span class="rna">Rural Pastagem</span> · Planejamento de Saída e Compra <span style="background:#ffffff18;color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;vertical-align:middle;margin-left:6px">GESTÃO</span></div>
+    <div class="hfazenda" id="fazendaNome">—</div>
+    <div class="hsub" id="fazendaSub">—</div>
+  </div>
+  <div class="hbtns">
+    <span class="hind" id="hind"></span>
+    <button class="hbtn hbs" onclick="salvar()">💾 Salvar</button>
+    <button class="hbtn hbr" onclick="resetar()">↺ Reset fazenda</button>
+    <button class="hbtn hbs" onclick="exportarFazendaCompleta()">📤 Exportar Fazenda</button>
+    <label class="hbtn hbs" for="importFazendaFile" style="cursor:pointer">📥 Importar Fazenda</label>
+    <input type="file" id="importFazendaFile" accept=".json" style="display:none" onchange="importarFazendaCompleta(event)">
+    <button class="hbtn hbp" onclick="gerarPDF()">📄 PDF</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb active" onclick="nav('config')">1 · Fazenda</button>
+  <button class="nb" onclick="nav('grafico')">2 · Lotação Sazonal</button>
+  <button class="nb" onclick="nav('lotes')">3 · Lotes</button>
+  <button class="nb" onclick="nav('compraaba')">4 · Compra</button>
+  <button class="nb" onclick="nav('saldo')">5 · Saldo do Rebanho</button>
+  <button class="nb" onclick="nav('financeiro')">6 · Financeiro</button>
+  <button class="nb" onclick="nav('distribuicao')">7 · Distribuição Manual</button>
+  <button class="nb" onclick="nav('planos')">8 · Planos Confirmados</button>
+  <button class="nb" onclick="nav('consolidado')" style="margin-top:auto;border-top:1px solid #ffffff25">Painel do Grupo</button>
+</div>
+
+<!-- CONFIG -->
+<div id="pg-config" class="pg active">
+  <div style="background:linear-gradient(135deg,var(--blu),var(--blu2));border-radius:12px;padding:28px 20px;margin-bottom:14px;text-align:center;color:#fff">
+    <div style="font-size:11px;letter-spacing:3px;font-family:var(--mono);opacity:.75;margin-bottom:6px">RURAL PASTAGEM</div>
+    <div id="painelNomeFazenda" style="font-size:38px;font-weight:800;font-family:'Georgia',serif;line-height:1.1">—</div>
+    <div style="display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-family:var(--mono)">
+      <div><div style="font-size:9px;opacity:.7;letter-spacing:1px">ÁREA ÚTIL</div><div id="painelArea" style="font-size:18px;font-weight:700">—</div></div>
+      <div><div style="font-size:9px;opacity:.7;letter-spacing:1px">REBANHO ATUAL</div><div id="painelRebanho" style="font-size:18px;font-weight:700">—</div></div>
+      <div><div style="font-size:9px;opacity:.7;letter-spacing:1px">UA/HA ATUAL</div><div id="painelUaHa" style="font-size:18px;font-weight:700">—</div></div>
+      <div><div style="font-size:9px;opacity:.7;letter-spacing:1px">SAÍDA / COMPRA</div><div id="painelPesos" style="font-size:18px;font-weight:700">—</div></div>
+    </div>
+  </div>
+  <div class="card compact">
+    <div class="ct">🏡 Estância</div>
+    <div class="g3">
+      <div class="fld"><label>Fazenda / Estância</label>
+        <select id="cfg_fazenda" onchange="trocarFazenda()" style="font-size:18px;font-weight:700;color:var(--gld);padding:8px 9px">
+          <option>Lusipar 1</option><option>Lusipar Central</option><option>Lusipar 2</option>
+          <option>Oro Verde</option><option>Santa Clara</option><option>Santa Maria da Serra</option>
+          <option>YbyPorã</option><option>Ypoti</option><option>La Esperanza</option>
+          <option>Cerro Memby</option><option>Cielo Azul</option><option>Bella Vista</option><option>Outra...</option>
+        </select>
+      </div>
+      <div class="fld" id="cfg_fazenda_outra_wrap" style="display:none">
+        <label>Nome da fazenda (outra)</label>
+        <input type="text" id="cfg_fazenda_outra" placeholder="Digite o nome" oninput="onOutraFazenda()">
+      </div>
+      <div class="fld"><label>Área útil (hectares)</label>
+        <input type="number" id="cfg_area" value="0" step="1" oninput="calc()" style="max-width:6em">
+        <div id="area_hint" style="font-size:10px;color:var(--txt3);margin-top:3px"></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="fld"><label>Peso de saída (kg)</label>
+        <input type="number" id="cfg_pesosaida" value="360" step="5" oninput="calc()" style="max-width:8em;font-size:20px;font-weight:700;padding:9px 10px">
+      </div>
+      <div class="fld"><label>Peso de compra (kg)</label>
+        <input type="number" id="cfg_pesocompra" value="180" step="5" oninput="calc()" style="max-width:8em;font-size:20px;font-weight:700;padding:9px 10px">
+      </div>
+      <div class="fld" style="justify-content:flex-end">
+        <span style="font-size:10px;color:var(--txt3)">1 UA = 450 kg (fixo)</span>
+        <input type="hidden" id="cfg_uakg" value="450">
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--txt2);background:var(--bg3);border-left:3px solid var(--gld);border-radius:4px;padding:7px 10px;margin-top:8px">⚠️ Defina com atenção: é com que peso o animal sai da fazenda (venda) e com que peso ele entra (compra) — essa decisão muda todo o planejamento de saída, compra e caixa.</div>
+  </div>
+
+  <div class="card compact">
+    <div style="background:linear-gradient(90deg,#173c2b,#2a5c40);color:#fff;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">⚙️</span><span>Este é o motor da compra: decide quantas cabeças entram a cada mês pra fechar a meta de lotação.</span>
+    </div>
+    <div class="ct">🎯 Método da lotação alvo <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">a saída é sempre pelo peso; o método define como a compra fecha a lotação</span></div>
+    <div class="ibox"><strong>Lotação alvo (recomendado):</strong> a cada mês, alvo = curva UA/ha × área útil × % desejado; o app projeta o rebanho que sobra no fim do mês (depois das saídas por peso e do ganho de peso) e <strong>compra o que falta</strong> para fechar na meta. Acima da meta, não compra. <strong>Relação de troca (legado):</strong> compra = saída do mês × fator de troca do mês. A curva de UA/ha usada aqui é a da aba <strong>2 · Lotação Sazonal</strong> — mude o mínimo/máximo por época do ano lá, não aqui.</div>
+    <div class="g3">
+      <div class="fld"><label>Método</label>
+        <select id="cfg_modocompra" onchange="calc()"><option value="lotacao">Lotação alvo (UA/ha)</option><option value="troca">Relação de troca (legado)</option></select>
+      </div>
+      <div class="fld"><label>% da lotação alvo a preencher</label>
+        <div class="bw"><button class="bp" onclick="adj('cfg_alvopct',-5)">−</button><input type="number" id="cfg_alvopct" value="100" step="5" onchange="calc()"><button class="bp" onclick="adj('cfg_alvopct',5)">+</button></div>
+      </div>
+      <div class="fld"><label>Compra mínima por mês (cab)</label>
+        <div class="bw"><button class="bp" onclick="adj('cfg_compramin',-10)">−</button><input type="number" id="cfg_compramin" value="0" step="10" onchange="calc()"><button class="bp" onclick="adj('cfg_compramin',10)">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card compact" id="card_troca_wrap">
+    <div class="ct">🔄 Curva de Troca mensal (reposição)
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">Base = nossa referência técnica · Ajustado = editável · só usada no método legado</span>
+    </div>
+    <div class="tblwrap"><table class="curve" id="tbl_troca_base"></table></div>
+    <div id="troca_seasons"></div>
+  </div>
+
+  <div class="card compact">
+    <div style="background:linear-gradient(90deg,#173c2b,#2a5c40);color:#fff;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">⚙️</span><span>Este é o motor do ganho de peso: decide quando cada lote atinge o peso de saída.</span>
+    </div>
+    <div class="ct">📈 Curva de GMD mensal (kg/cab/dia)
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">Base = nossa referência técnica · Ajustado = editável</span>
+    </div>
+    <div class="ibox">Normalmente não precisa mexer aqui — a curva base já reflete a nossa referência técnica de ganho de peso por mês. Só ajuste se tiver um motivo concreto (seca fora do padrão, pasto reformado, etc.).</div>
+    <div class="tblwrap"><table class="curve" id="tbl_gmd_base"></table></div>
+    <div id="gmd_seasons"></div>
+  </div>
+</div>
+
+<!-- LOTES -->
+<div id="pg-lotes" class="pg">
+  <div class="card">
+    <div class="ct">📥 Importar Lotes (Control de Pasto)</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <label class="filebtn" for="fileImport">📁 Importar Excel/CSV</label>
+      <input type="file" id="fileImport" accept=".xlsx,.xls,.csv" onchange="handleImport(event)">
+      <button class="smbtn" onclick="limparLotes()">🗑 Limpar todos os lotes</button>
+      <span class="hind" id="importInd"></span>
+    </div>
+    <div class="ibox">Importa apenas as colunas <strong>Lote</strong>, <strong>Anm</strong> (nº de cabeças) e <strong>PV (Cab)</strong> (peso vivo/cabeça) do relatório. A <strong>data da pesagem</strong> usada na projeção é o dia em que este arquivo foi importado: <strong id="lotes_data_pesagem">—</strong></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📋 Lotes existentes na fazenda
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">As compras (automáticas e planejadas) aparecem na aba Compra</span>
+    </div>
+    <div class="g4kpi" id="lotes_resumo"></div>
+    <div class="ibox">Clique no cabeçalho de <strong>Anm</strong>, <strong>Peso</strong>, <strong>Dias previstos</strong> ou <strong>Mês de saída</strong> pra ordenar por essa coluna. Marque a caixinha da 1ª coluna nos lotes que quer destacar (ex.: os mais pesados) — o resumo abaixo da tabela é montado sozinho, sem precisar fazer mais nada.</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+      <input type="text" id="lotes_busca" placeholder="🔎 Buscar lote pelo nome..." oninput="renderLotes(buildSimulacao())" style="max-width:220px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2);cursor:pointer">
+        <input type="checkbox" id="lotes_mostrar_zero" onchange="renderLotes(buildSimulacao())"> mostrar lotes com 0 animais
+      </label>
+      <span class="hind" id="lotes_filtro_ind"></span>
+    </div>
+    <div class="tblwrap"><table class="lotestbl" id="tbl_lotes"></table></div>
+    <div id="lotes_empty" class="emptybox" style="display:none">Nenhum lote importado ainda. Use "Importar Excel/CSV" acima.</div>
+    <div id="lotes_selecao"></div>
+  </div>
+</div>
+
+<!-- SAIDA -->
+<!-- DISTRIBUIÇÃO DE SAÍDA (simulador de escoamento) -->
+<div id="pg-distribuicao" class="pg">
+  <div class="card">
+    <div class="ct">🚚 Distribuição de Saída e Entrada — simulador de escoamento
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">Reorganiza quando os animais saem e entram, sem mudar o total do ano</span>
+    </div>
+    <div class="ibox">Parte da <strong>saída automática</strong> (biológica) como referência. Se você digitar um valor menor pra um mês, o restante vira "disponível" no mês seguinte — isso vale tanto pra <strong>guia de saída</strong> quanto pra <strong>guia de entrada (compra)</strong>, que também é editável linha a linha. Para ver o efeito completo da decisão, abra <strong>Saldo do Rebanho</strong> e selecione <strong>Ajustado manual</strong>.</div>
+    <div style="display:flex;gap:10px;margin:8px 0;flex-wrap:wrap">
+      <button class="smbtn" onclick="limparAjustesDistribuicao()">🧹 Limpar ajustes manuais</button>
+      <button class="hbtn hbp" onclick="confirmarPlano()">✅ Confirmar Plano</button>
+      <span class="hind" id="confirmInd"></span>
+    </div>
+    <div class="g4kpi">
+      <div class="kpibox"><div class="kl">Total saída no ano</div><div class="kv" id="dist_total_saida">—</div></div>
+      <div class="kpibox"><div class="kl">Total compra no ano</div><div class="kv gn" id="dist_total_compra">—</div></div>
+      <div class="kpibox"><div class="kl">Ainda falta sair pelo peso</div><div class="kv rd" id="dist_sobra">—</div></div>
+      <div class="kpibox"><div class="kl">Mês de pico (saída)</div><div class="kv gd" id="dist_pico">—</div></div>
+    </div>
+    <div class="tblwrap"><table class="curve" id="tbl_distribuicao"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📊 Enquanto você distribui: Capacidade-alvo (amarela, fixa) vs Projetado pela SUA distribuição (azul, recalcula a cada mudança)</div>
+    <div class="ibox">Vá ajustando saída e entrada acima até a linha azul encostar na amarela nos meses onde estiver estourando ou sobrando capacidade. <strong>Aproximação</strong>: a linha azul aqui usa o estoque agregado (cabeças e peso total) da sua distribuição — animais represados são contabilizados mais pesados quando saem — mas não recalcula o peso individual de cada lote como no cronograma biológico puro (aba Lotação Sazonal).</div>
+    <div id="chart_distribuicao"></div>
+  </div>
+</div>
+
+<!-- PLANOS CONFIRMADOS -->
+<div id="pg-planos" class="pg">
+  <div class="card">
+    <div class="ct">📋 Planos Confirmados</div>
+    <div class="ibox">Cada plano é uma <strong>foto congelada</strong> da Distribuição no momento em que você clicou "Confirmar Plano" — mudar a distribuição depois não altera os planos já salvos aqui. Bom pra comparar como sua decisão foi mudando ao longo dos dias.</div>
+    <div id="planos_lista" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div>
+    <div id="planos_empty" class="emptybox" style="display:none">Nenhum plano confirmado ainda. Vá em "Distribuição de Saída" e clique "✅ Confirmar Plano".</div>
+  </div>
+  <div id="planos_detalhe"></div>
+</div>
+
+<!-- CONSOLIDADO (independente de fazenda selecionada) -->
+<div id="pg-consolidado" class="pg">
+  <div class="card">
+    <div class="ct">🏘 Consolidado — várias fazendas juntas</div>
+    <div class="ibox">Importa os arquivos "💾 Exportar dados (.json)" (plano enxuto) <strong>ou</strong> "📤 Exportar Fazenda" (completo — nesse caso, pega automaticamente o plano confirmado mais recente daquela fazenda) e soma <strong>cabeças e dinheiro</strong> entre elas. UA/ha, GMD, Troca e lotação sazonal ficam de fora de propósito — são coisas de pasto físico de cada propriedade, não fazem sentido somadas.</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <label class="filebtn" for="fileImportConsolidado">📁 Importar plano(s) (.json)</label>
+      <input type="file" id="fileImportConsolidado" accept=".json" multiple style="display:none" onchange="importarPlanosConsolidado(event)">
+      <button class="hbtn hbp" style="padding:8px 14px" onclick="gerarPDFConsolidado()">📄 Relatório PDF do Grupo</button>
+      <button class="hbtn hbp" style="padding:8px 14px" onclick="exportarExcelConsolidado()">📊 Exportar Excel do Grupo</button>
+      <span class="hind" id="consolidadoInd"></span>
+    </div>
+    <div id="consolidado_lista" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div>
+    <div id="consolidado_empty" class="emptybox" style="display:none">Nenhuma fazenda importada ainda.</div>
+  </div>
+  <div id="consolidado_fazenda_detalhe"></div>
+  <div id="consolidado_totais"></div>
+</div>
+
+<!-- COMPRA (planejamento manual + automático) -->
+<div id="pg-compraaba" class="pg">
+  <div class="card">
+    <div class="ct">🛒 Lotes de Compra — automáticos (gerados pela saída) + planejados manualmente
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">Linhas distintas mesmo se caírem no mesmo mês</span>
+    </div>
+    <div class="fld" style="max-width:280px">
+      <label>Valor de compra por cabeça — US$ (padrão, abastece todas as linhas)</label>
+      <div class="bw"><button class="bp" onclick="adj('compra_valorpadrao',-10)">−</button><input type="number" id="compra_valorpadrao" value="0" step="10" onchange="calc()"><button class="bp" onclick="adj('compra_valorpadrao',10)">+</button></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0">
+      <button class="smbtn" onclick="addCompraManual()">+ Adicionar compra planejada</button>
+      <button class="smbtn" id="btnSortCompra" onclick="toggleSortCompra()">↕ Ordenar por mês de compra</button>
+    </div>
+    <div class="ibox">O valor padrão preenche automaticamente as linhas sem preço próprio (automáticas e manuais). Edite uma linha específica se o preço for diferente.</div>
+    <div class="g4kpi" id="compra_resumo"></div>
+    <div class="tblwrap"><table class="lotestbl" id="tbl_compra_aba"></table></div>
+    <div id="compra_empty" class="emptybox" style="display:none">Nenhuma compra (automática ou planejada) ainda.</div>
+  </div>
+</div>
+
+<!-- SALDO -->
+<div id="pg-saldo" class="pg">
+  <div class="card">
+    <div class="ct">
+      🐄 Saldo do Rebanho na Fazenda (mês a mês)
+      <div class="modal-sel">
+        <button class="msbtn" id="mb_com" onclick="setSaldoModo('automatico')">✅ Automático</button>
+        <button class="msbtn" id="mb_sem" onclick="setSaldoModo('sem')">🚫 Sem compra</button>
+        <button class="msbtn" id="mb_manual" onclick="setSaldoModo('manual')">✍️ Ajustado manual</button>
+      </div>
+    </div>
+    <div class="ibox" id="saldo_modo_info">Saldo calculado pelas saídas e compras automáticas do planejamento.</div>
+    <div class="g4kpi">
+      <div class="kpibox"><div class="kl">Rebanho atual</div><div class="kv" id="sd_atual">—</div><div class="kl" style="margin-top:4px">UA atual</div><div class="kv gd" id="sd_atual_ua">—</div><div class="kl" style="margin-top:4px">UA/ha atual</div><div class="kv pu" id="sd_atual_uaha">—</div></div>
+      <div class="kpibox"><div class="kl">Total sai no ano</div><div class="kv rd" id="sd_sai">—</div></div>
+      <div class="kpibox"><div class="kl">Total compra no ano</div><div class="kv gn" id="sd_compra">—</div></div>
+      <div class="kpibox"><div class="kl">Saldo final (12º mês)</div><div class="kv lg gd" id="sd_final">—</div><div class="kl" style="margin-top:4px">UA/ha final</div><div class="kv pu" id="sd_final_uaha">—</div></div>
+    </div>
+    <div class="tblwrap"><table class="curve" id="tbl_saldo"></table></div>
+  </div>
+</div>
+
+<!-- FINANCEIRO -->
+<div id="pg-financeiro" class="pg">
+  <div class="card">
+    <div class="ct">💰 Resumo de Custo — mês a mês
+      <span style="font-size:10px;color:var(--txt3);font-weight:400;letter-spacing:0;margin-left:8px">Baseado na compra decidida em "Distribuição Manual" · preço padrão: <span id="fin_preco_padrao">—</span> (ajuste na aba "4 · Compra")</span>
+    </div>
+    <div class="g4kpi">
+      <div class="kpibox"><div class="kl">Total investido no ano</div><div class="kv lg gd" id="fin_total">—</div></div>
+      <div class="kpibox"><div class="kl">Cabeças a comprar no ano</div><div class="kv" id="fin_cab">—</div></div>
+      <div class="kpibox"><div class="kl">Custo médio / cabeça</div><div class="kv" id="fin_media">—</div></div>
+      <div class="kpibox"><div class="kl">Mês de maior desembolso</div><div class="kv gn" id="fin_pico">—</div></div>
+    </div>
+    <div class="tblwrap"><table class="curve" id="tbl_fin_lotes"></table></div>
+    <div id="fin_empty" class="emptybox" style="display:none">Nenhuma compra decidida ainda. Vá em "Distribuição Manual" pra ajustar saída e entrada mês a mês.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📆 Necessidade de Caixa — mês a mês</div>
+    <div class="tblwrap"><table class="curve" id="tbl_fin_caixa"></table></div>
+  </div>
+</div>
+
+<!-- GRÁFICO / CAPACIDADE -->
+<div id="pg-grafico" class="pg">
+  <div class="card compact">
+    <div class="ct">✈️ Capacidade da Fazenda (UA/ha) — "avião": decola no mínimo, cruzeiro no auge, pousa no mínimo</div>
+    <div class="ibox">Ciclo agrícola do hemisfério sul: <strong>mínimo em Julho</strong> (início do inverno/pasto mais fraco) subindo suavemente até o <strong>máximo em Janeiro</strong> (verão/pasto forte), e descendo de volta ao mínimo até Junho. Pesquisa de referência: no sudeste/centro-oeste do Brasil, 70–90% da produção forrageira do ano se concentra no período das águas (out–mar); só 10–30% acontece na seca (abr–set) — por isso a lotação precisa acompanhar essa onda.</div>
+    <div class="g3">
+      <div class="fld"><label>UA/ha mínimo (pouso — Julho)</label>
+        <div class="bw"><button class="bp" onclick="adj('cfg_uahamin',-0.1)">−</button><input type="number" id="cfg_uahamin" value="1.2" step="0.1" onchange="calc()"><button class="bp" onclick="adj('cfg_uahamin',0.1)">+</button></div>
+        <div style="display:flex;gap:4px;margin-top:5px"><button class="smbtn" onclick="bumpAncora('cfg_uahamin',-5)">−5%</button><button class="smbtn" onclick="bumpAncora('cfg_uahamin',5)">+5%</button></div>
+      </div>
+      <div class="fld"><label>UA/ha máximo (auge — Janeiro)</label>
+        <div class="bw"><button class="bp" onclick="adj('cfg_uahamax',-0.1)">−</button><input type="number" id="cfg_uahamax" value="2.5" step="0.1" onchange="calc()"><button class="bp" onclick="adj('cfg_uahamax',0.1)">+</button></div>
+        <div style="display:flex;gap:4px;margin-top:5px"><button class="smbtn" onclick="bumpAncora('cfg_uahamax',-5)">−5%</button><button class="smbtn" onclick="bumpAncora('cfg_uahamax',5)">+5%</button></div>
+      </div>
+      <div class="fld"><label>&nbsp;</label>
+        <button class="smbtn" onclick="regenerarCapacidade()">↺ Recalcular curva a partir do min/max</button>
+      </div>
+    </div>
+    <div class="tblwrap"><table class="curve" id="tbl_cap_base"></table></div>
+    <div id="cap_seasons"></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📊 Capacidade-alvo (UA/ha) vs Projetado pela simulação</div>
+    <div class="ibox">Referência de mercado: média histórica brasileira ≈ <strong>1,0–1,2 UA/ha</strong> (extensivo) · sistemas intensificados ≈ <strong>1,5–3,0 UA/ha</strong>. Zona <strong style="color:var(--red)">vermelha</strong> = projetado acima da capacidade-alvo (risco de degradação do pasto) · zona <strong style="color:var(--grn)">verde</strong> = projetado abaixo (folga/pasto subutilizado).</div>
+    <div id="chart_capacidade"></div>
+    <div class="tblwrap" style="margin-top:10px"><table class="curve" id="tbl_cap_comparacao"></table></div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>Rural Pastagem</strong> · Planejamento de Saída e Compra · Fazenda a fazenda
+</div>
+
+<script>
+var MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+var GMD_BASE=[0.75,0.70,0.60,0.50,0.40,0.25,0.25,0.20,0.20,0.45,0.64,0.85];
+var TROCA_BASE=[1.15,1.10,1.05,1.00,0.95,0.90,0.85,1.00,1.05,1.50,1.65,1.55];
+// Área útil de referência (ha), conforme cadastro no Control Pasto — pré-preenche o campo "Área útil"
+// quando uma fazenda é aberta pela primeira vez neste navegador; depois disso o valor salvo pelo usuário
+// sempre prevalece (o campo continua editável, ex.: se entrou pasto novo). Valores em 0/ausentes precisam
+// ser confirmados e preenchidos.
+var AREA_HA_CONHECIDA={
+  'Lusipar 1': 1414,
+  'Lusipar Central': 3104,
+  'Lusipar 2': 2443.4,
+  'Oro Verde': 814.9,
+  'YbyPorã': 1129.3,
+  'Ypoti': 3646,
+  'La Esperanza': 2059,
+  'Cielo Azul': 3775,
+  'Bella Vista': 3102,
+  'Cerro Memby': 2100
+  // Santa Clara e Santa Maria da Serra: sem Área Útil cadastrada no Control Pasto
+  // (só existe Área Total de Pastura, que é outra métrica) — ficam de fora do
+  // preenchimento automático até a área útil real ser informada.
+};
+
+// Seleção de lotes para o "alerta de retirada" (aba Lotes) — é só uma escolha de tela,
+// não afeta a simulação (diferente do checkbox "incluir"), por isso fica fora do state
+// que é salvo/exportado. Zerada sempre que troca de fazenda.
+var selecaoRelatorioLotes={};
+
+
+var state={
+  fazenda:'Lusipar 1',
+  area:0,
+  data: new Date().toISOString().slice(0,10),
+  pesoSaida:360,
+  pesoCompra:180,
+  uaKg:450,
+  modoCompra:'lotacao', // 'lotacao' (UA/ha, recomendado) ou 'troca' (legado)
+  alvoPct:100,
+  compraMin:0,
+  comCompra:true,
+  saldoModo:'automatico',
+  valorCabPadraoUSD:0,
+  gmdAjuste: GMD_BASE.slice(),
+  trocaAjuste: TROCA_BASE.slice(),
+  gmdPercent:new Array(12).fill(0),
+  trocaPercent:new Array(12).fill(0),
+  lotes:[], // {id,lote,anm,pv,incluir}
+  overrides:{}, // autoId -> {anm,pv,incluir,valorCabUSD}
+  sortLotes:null,
+  comprasManual:[], // {id,anm,pv,periodo,incluir}
+  sortCompra:null,
+  distribuicao:{ saida:new Array(12).fill(null), compra:new Array(12).fill(null) },
+  uaHaMin:1.2,
+  uaHaMax:2.5,
+  capacidadeAjuste:null, // gerado sob demanda a partir de uaHaMin/uaHaMax
+  capPercent:new Array(12).fill(0),
+  planosConfirmados:[], // fotos congeladas da Distribuição
+  planoSelecionadoId:null,
+  planoComparacaoId:null,
+};
+
+function el(id){return document.getElementById(id);}
+function vn(id){var e=el(id);if(!e)return 0;return parseFloat(e.value)||0;}
+function adj(id,step){var e=el(id);if(!e)return;var d=step.toString().split('.')[1];e.value=(parseFloat(e.value||0)+step).toFixed(d?d.length:0);calc();}
+
+function toggleTheme(){ document.body.classList.add('light'); }
+function carregarTema(){ document.body.classList.add('light'); }
+
+function nav(page){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
+  el('pg-'+page).classList.add('active');
+  document.querySelector('[onclick="nav(\''+page+'\')"]').classList.add('active');
+  if(page==='consolidado') renderConsolidado();
+}
+function setCenario(v){ setSaldoModo(v?'automatico':'sem'); }
+function setSaldoModo(modo){
+  state.saldoModo=modo||'automatico';
+  state.comCompra=state.saldoModo!=='sem';
+  updateCenarioBtns(); calc(); salvarFazendaAtual();
+}
+function updateCenarioBtns(){
+  var modo=state.saldoModo||(state.comCompra?'automatico':'sem');
+  el('mb_com').classList.toggle('on',modo==='automatico');
+  el('mb_sem').classList.toggle('on',modo==='sem');
+  var bm=el('mb_manual');if(bm)bm.classList.toggle('on',modo==='manual');
+  var info=el('saldo_modo_info');if(info){
+    info.textContent=modo==='manual'?'Saldo recalculado com as saídas e compras definidas no Ajuste Manual.':(modo==='sem'?'Saldo projetado sem nenhuma compra automática.':'Saldo calculado pelas saídas e compras automáticas do planejamento.');
+  }
+}
+function fmtMoeda(usd){
+  return '$'+(usd||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtPtBR(n,decimals){
+  return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+}
+function editValorCab(autoId,val){
+  if(!state.overrides[autoId]) state.overrides[autoId]={};
+  state.overrides[autoId].valorCabUSD = parseFloat(val)||0;
+  calc(); salvarFazendaAtual();
+}
+
+function storageKey(faz){return 'ruralPastagemBETA_v3_'+faz;}
+
+function trocarFazenda(){
+  var v=el('cfg_fazenda').value;
+  el('cfg_fazenda_outra_wrap').style.display = v==='Outra...' ? 'block' : 'none';
+  if(v!=='Outra...'){
+    salvarFazendaAtual();
+    state.fazenda=v;
+    carregarFazenda(v);
+  }
+}
+function onOutraFazenda(){
+  var nome=el('cfg_fazenda_outra').value.trim();
+  if(nome){ state.fazenda=nome; carregarFazenda(nome); }
+}
+
+function carregarFazenda(nome){
+  var raw=null;
+  try{raw=localStorage.getItem(storageKey(nome));}catch(ex){}
+  if(raw){
+    try{
+      var d=JSON.parse(raw);
+      // se a fazenda já foi salva antes mas a área útil ainda está zerada (nunca foi preenchida),
+      // usa a referência do Control Pasto — sem isso só fazenda nova (nunca aberta) recebia o auto-preenchimento.
+      state.area = d.area || AREA_HA_CONHECIDA[nome] || 0;
+      state.data=d.data||new Date().toISOString().slice(0,10);
+      state.pesoSaida=d.pesoSaida||360;
+      state.pesoCompra=d.pesoCompra!=null?d.pesoCompra:180;
+      state.uaKg=d.uaKg||450;
+      state.modoCompra = d.modoCompra || 'lotacao';
+      state.alvoPct = d.alvoPct!=null ? d.alvoPct : 100;
+      state.compraMin = d.compraMin!=null ? d.compraMin : 0;
+      state.comCompra = d.comCompra!==undefined? d.comCompra : true;
+      state.saldoModo = d.saldoModo || (state.comCompra?'automatico':'sem');
+      state.comCompra = state.saldoModo!=='sem';
+      state.valorCabPadraoUSD = d.valorCabPadraoUSD || 0;
+      state.gmdAjuste=d.gmdAjuste||GMD_BASE.slice();
+      state.trocaAjuste=d.trocaAjuste||TROCA_BASE.slice();
+      state.gmdPercent=Array.isArray(d.gmdPercent)?d.gmdPercent:new Array(12).fill(0);
+      state.trocaPercent=Array.isArray(d.trocaPercent)?d.trocaPercent:new Array(12).fill(0);
+      state.lotes=d.lotes||[];
+      state.overrides=d.overrides||{};
+      state.sortLotes=d.sortLotes||null;
+      state.sortLotesCampo=d.sortLotesCampo||'mes';
+      state.comprasManual=d.comprasManual||[];
+      state.sortCompra=d.sortCompra||null;
+      state.distribuicao = d.distribuicao || { saida:new Array(12).fill(null), compra:new Array(12).fill(null) };
+      state.uaHaMin = d.uaHaMin!=null ? d.uaHaMin : 1.2;
+      state.uaHaMax = d.uaHaMax!=null ? d.uaHaMax : 2.5;
+      state.capacidadeAjuste = Array.isArray(d.capacidadeAjuste) ? d.capacidadeAjuste : null;
+      state.capPercent = Array.isArray(d.capPercent) ? d.capPercent : new Array(12).fill(0);
+      state.planosConfirmados = Array.isArray(d.planosConfirmados) ? d.planosConfirmados : [];
+      state.planoSelecionadoId = d.planoSelecionadoId || null;
+      state.planoComparacaoId = d.planoComparacaoId || null;
+    }catch(ex){}
+  } else {
+    state.area=AREA_HA_CONHECIDA[nome]||0;state.data=new Date().toISOString().slice(0,10);state.pesoSaida=360;state.pesoCompra=180;state.uaKg=450;state.modoCompra='lotacao';state.alvoPct=100;state.compraMin=0;state.comCompra=true;state.saldoModo='automatico';state.valorCabPadraoUSD=0;
+    state.gmdAjuste=GMD_BASE.slice();state.trocaAjuste=TROCA_BASE.slice();state.gmdPercent=new Array(12).fill(0);state.trocaPercent=new Array(12).fill(0);state.lotes=[];state.overrides={};state.sortLotes=null;state.sortLotesCampo='mes';state.comprasManual=[];state.sortCompra=null;state.distribuicao={ saida:new Array(12).fill(null), compra:new Array(12).fill(null) };state.uaHaMin=1.2;state.uaHaMax=2.5;state.capacidadeAjuste=null;state.capPercent=new Array(12).fill(0);state.planosConfirmados=[];state.planoSelecionadoId=null;state.planoComparacaoId=null;
+  }
+  if(!state.capacidadeAjuste) state.capacidadeAjuste=capacidadeBaseArr(); // normalmente essa regeneração é feita dentro do readFormIntoState(), mas o skipRead abaixo o pula no primeiro render de uma fazenda nova
+  selecaoRelatorioLotes={}; // seleção do "alerta de retirada" é por tela, não deve vazar de uma fazenda pra outra
+  renderAll(true); // skipRead: acabamos de carregar dados novos (troca de fazenda ou import) — calc() não pode reler os campos/tabelas da fazenda ANTERIOR ainda presentes no DOM, senão ajustes manuais (distribuição de saída/compra) vazam de uma fazenda pra outra ou somem ao importar.
+}
+
+function salvarFazendaAtual(){
+  try{localStorage.setItem(storageKey(state.fazenda),JSON.stringify(state));}catch(ex){}
+}
+
+function exportarFazendaCompleta(){
+  readFormIntoState();
+  var payload = Object.assign({tipo:'rural_pastagem_fazenda_completa', versao:3}, state);
+  var blob=new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=('Fazenda_'+state.fazenda).replace(/[^a-zA-Z0-9_-]+/g,'_')+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  var ind=el('hind'); if(ind){ ind.textContent='✅ Fazenda exportada'; setTimeout(function(){ind.textContent='';},3000); }
+}
+
+function importarFazendaCompleta(evt){
+  var file=evt.target.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var payload=JSON.parse(e.target.result);
+      if(!payload || payload.tipo!=='rural_pastagem_fazenda_completa' || !payload.fazenda){
+        alert('Arquivo inválido — use um arquivo gerado pelo botão "Exportar Fazenda" deste app.');
+        return;
+      }
+      var nomeAlvo=payload.fazenda;
+      var jaExiste=null; try{ jaExiste=localStorage.getItem(storageKey(nomeAlvo)); }catch(ex){}
+      var doImport=function(){
+        try{ localStorage.setItem(storageKey(nomeAlvo), JSON.stringify(payload)); }catch(ex){}
+        state.fazenda=nomeAlvo;
+        carregarFazenda(nomeAlvo);
+        var ind=el('hind'); if(ind){ ind.textContent='✅ Fazenda "'+nomeAlvo+'" importada'; setTimeout(function(){ind.textContent='';},3000); }
+      };
+      if(jaExiste){
+        customConfirm('Já existe uma fazenda "'+nomeAlvo+'" salva neste navegador. Importar vai <b>substituir</b> os dados dela. Continuar?', doImport);
+      } else {
+        doImport();
+      }
+    }catch(ex){
+      alert('Não consegui ler esse arquivo: '+ex.message);
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value='';
+}
+function salvar(){
+  readFormIntoState();
+  salvarFazendaAtual();
+  var s=el('hind');if(s){s.textContent='✅ salvo '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});setTimeout(function(){s.textContent='';},2500);}
+}
+function customConfirm(message,onYes){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  var box=document.createElement('div');
+  box.style.cssText='background:var(--bg2);border:1px solid var(--brd2);border-radius:10px;padding:20px;max-width:320px;text-align:center;font-family:var(--mono);color:var(--txt);font-size:13px';
+  box.innerHTML='<div style="margin-bottom:16px">'+message+'</div>';
+  var byes=document.createElement('button'); byes.textContent='Sim, confirmar'; byes.className='hbtn hbr'; byes.style.marginRight='8px';
+  var bno=document.createElement('button'); bno.textContent='Cancelar'; bno.className='hbtn hbs';
+  box.appendChild(byes); box.appendChild(bno);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  byes.onclick=function(){ document.body.removeChild(overlay); onYes(); };
+  bno.onclick=function(){ document.body.removeChild(overlay); };
+  overlay.onclick=function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+}
+function resetar(){
+  customConfirm('Resetar todos os dados desta fazenda ("'+state.fazenda+'")?', function(){
+    try{localStorage.removeItem(storageKey(state.fazenda));}catch(ex){}
+    carregarFazenda(state.fazenda);
+  });
+}
+
+function readFormIntoState(){
+  state.area=vn('cfg_area');
+  state.pesoSaida=vn('cfg_pesosaida');
+  state.pesoCompra=vn('cfg_pesocompra');
+  state.uaKg=vn('cfg_uakg')||450;
+  var mc=el('cfg_modocompra'); if(mc) state.modoCompra=mc.value;
+  var ap=el('cfg_alvopct'); if(ap) state.alvoPct=parseFloat(ap.value)||0;
+  var cm=el('cfg_compramin'); if(cm) state.compraMin=parseFloat(cm.value)||0;
+  var tw=el('card_troca_wrap'); if(tw) tw.style.display = state.modoCompra==='troca' ? 'block' : 'none';
+  var vp=el('compra_valorpadrao'); if(vp) state.valorCabPadraoUSD=parseFloat(vp.value)||0;
+  var minEl=el('cfg_uahamin'), maxEl=el('cfg_uahamax');
+  var capRegeneradaAgora=false;
+  if(minEl && maxEl){
+    var newMin=parseFloat(minEl.value)||1.2, newMax=parseFloat(maxEl.value)||2.5;
+    if(newMin!==state.uaHaMin || newMax!==state.uaHaMax || !state.capacidadeAjuste){
+      state.uaHaMin=newMin; state.uaHaMax=newMax;
+      state.capacidadeAjuste=capacidadeBaseArr();
+      state.capPercent=new Array(12).fill(0);
+      applyPercentToInputs('cap_adj'); // sincroniza a tela ANTES do loop abaixo reler os inputs, senão o valor novo é sobrescrito pelo antigo
+      capRegeneradaAgora=true;
+    }
+  }
+  if(!state.capacidadeAjuste) state.capacidadeAjuste=capacidadeBaseArr();
+  for(var i=0;i<12;i++){
+    var g=el('gmd_adj_'+i); if(g) state.gmdAjuste[i]=parseFloat(g.value)||0;
+    var t=el('troca_adj_'+i); if(t) state.trocaAjuste[i]=parseFloat(t.value)||0;
+    if(!capRegeneradaAgora){ var ca=el('cap_adj_'+i); if(ca) state.capacidadeAjuste[i]=parseFloat(ca.value)||0; }
+    // dist_saida_i / dist_compra_i NÃO são lidos aqui de propósito — ver ajustarDistSaida/ajustarDistCompra.
+    // Esses campos sempre mostram um valor calculado (automático OU manual), então reler o value=""
+    // daqui a cada recálculo "gravava" o número automático como se fosse um ajuste manual, e "Limpar
+    // ajustes manuais" nunca voltava de fato pro automático — só ficava assim até o próximo recálculo.
+  }
+}
+
+function efetivoGmd(monthIdx){
+  var v=state.gmdAjuste[monthIdx%12];
+  return (v===undefined||v===null||isNaN(v)) ? GMD_BASE[monthIdx%12] : v;
+}
+function efetivoTroca(monthIdx){
+  var v=state.trocaAjuste[monthIdx%12];
+  return (v===undefined||v===null||isNaN(v)) ? TROCA_BASE[monthIdx%12] : v;
+}
+function daysInMonth(year,monthIdx){ return new Date(year,monthIdx+1,0).getDate(); }
+
+// ---------- CURVA DE CAPACIDADE DA FAZENDA (UA/ha) — "avião": decola no mínimo, cruzeiro no máximo, pousa no mínimo ----------
+// Pico em Janeiro (mês 0), vale em Julho (mês 6) — ciclo agrícola do hemisfério sul
+function capacidadeBaseArr(){
+  var mid=(state.uaHaMax+state.uaHaMin)/2, amp=(state.uaHaMax-state.uaHaMin)/2;
+  var arr=[];
+  for(var m=0;m<12;m++){ arr.push(mid+amp*Math.cos(2*Math.PI*m/12)); }
+  return arr;
+}
+function efetivoCapacidade(monthIdx){
+  var base=capacidadeBaseArr();
+  var ajuste = state.capacidadeAjuste;
+  var v = ajuste && ajuste[monthIdx%12]!=null ? ajuste[monthIdx%12] : null;
+  return (v===undefined||v===null||isNaN(v)) ? base[monthIdx%12] : v;
+}
+function regenerarCapacidade(){
+  var minEl=el('cfg_uahamin'), maxEl=el('cfg_uahamax');
+  if(minEl) state.uaHaMin=parseFloat(minEl.value)||1.2;
+  if(maxEl) state.uaHaMax=parseFloat(maxEl.value)||2.5;
+  state.capacidadeAjuste = capacidadeBaseArr();
+  state.capPercent = new Array(12).fill(0);
+  applyPercentToInputs('cap_adj');
+  calc(); salvarFazendaAtual();
+}
+function bumpAncora(id,pctSign){
+  var e=el(id);
+  if(!e) return;
+  var val=parseFloat(e.value)||0;
+  e.value=(val*(1+pctSign/100)).toFixed(2);
+  regenerarCapacidade();
+}
+
+// ---------- RENDER CURVE TABLES (GMD / TROCA) ----------
+var SEASONS=[
+  {name:'Verão',emoji:'☀️',months:[11,0,1]},
+  {name:'Outono',emoji:'🍂',months:[2,3,4]},
+  {name:'Inverno',emoji:'❄️',months:[5,6,7]},
+  {name:'Primavera',emoji:'🌸',months:[8,9,10]}
+];
+
+function renderCurveTable(tableId, baseArr, ajusteArr, idPrefix){
+  var h='<tr><th class="lbl">Mês</th>';
+  MESES.forEach(function(m){h+='<th>'+m+'</th>';});
+  h+='</tr>';
+  h+='<tr><td class="lbl">Base (referência)</td>';
+  baseArr.forEach(function(v){h+='<td class="base">'+v.toFixed(2)+'</td>';});
+  h+='</tr>';
+  h+='<tr><td class="lbl">Ajustado (editável)<div style="margin-top:5px;display:flex;gap:4px" title="Ajusta os 12 meses de uma vez"><button class="smbtn" onclick="bumpCurveRow(\''+idPrefix+'\',-1)">Ano −5%</button><button class="smbtn" onclick="bumpCurveRow(\''+idPrefix+'\',1)">Ano +5%</button></div></td>';
+  ajusteArr.forEach(function(v,i){h+='<td><input type="number" step="0.01" id="'+idPrefix+'_'+i+'" value="'+(parseFloat(v)||0).toFixed(2)+'" onchange="calc()"></td>';});
+  h+='</tr>';
+  el(tableId).innerHTML=h;
+}
+
+function getBaseArrFor(idPrefix){
+  if(idPrefix==='gmd_adj') return GMD_BASE;
+  if(idPrefix==='troca_adj') return TROCA_BASE;
+  if(idPrefix==='cap_adj') return capacidadeBaseArr();
+  return new Array(12).fill(0);
+}
+function getPercentArrFor(idPrefix){
+  if(idPrefix==='gmd_adj') return state.gmdPercent;
+  if(idPrefix==='troca_adj') return state.trocaPercent;
+  if(idPrefix==='cap_adj') return state.capPercent;
+  return new Array(12).fill(0);
+}
+function applyPercentToInputs(idPrefix){
+  var baseArr = getBaseArrFor(idPrefix);
+  var percentArr = getPercentArrFor(idPrefix);
+  for(var i=0;i<12;i++){
+    var inp=el(idPrefix+'_'+i);
+    if(inp) inp.value=(baseArr[i]*(1+percentArr[i]/100)).toFixed(2);
+  }
+}
+function bumpCurveRow(idPrefix,sign){
+  var percentArr = getPercentArrFor(idPrefix);
+  for(var i=0;i<12;i++) percentArr[i]+=5*sign;
+  applyPercentToInputs(idPrefix);
+  calc();
+}
+function bumpCurveSeason(idPrefix,seasonMonths,sign){
+  var percentArr = getPercentArrFor(idPrefix);
+  seasonMonths.forEach(function(m){ percentArr[m]+=5*sign; });
+  applyPercentToInputs(idPrefix);
+  calc();
+}
+function renderSeasonControls(idPrefix,containerId){
+  var percentArr = getPercentArrFor(idPrefix);
+  var h='<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  SEASONS.forEach(function(s){
+    var pctShow=percentArr[s.months[0]];
+    h+='<div class="kpibox" style="flex:1;min-width:120px;text-align:center">';
+    h+='<div class="kl">'+s.emoji+' '+s.name+'</div>';
+    h+='<div style="display:flex;gap:4px;justify-content:center;margin-top:4px">';
+    h+='<button class="smbtn" onclick="bumpCurveSeason(\''+idPrefix+'\','+JSON.stringify(s.months)+',-1)">−5%</button>';
+    h+='<button class="smbtn" onclick="bumpCurveSeason(\''+idPrefix+'\','+JSON.stringify(s.months)+',1)">+5%</button>';
+    h+='</div>';
+    h+='<div style="font-size:9px;color:var(--txt3);margin-top:3px">'+(pctShow>0?'+':'')+pctShow+'%</div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  el(containerId).innerHTML=h;
+}
+
+// ---------- LOTES IMPORT ----------
+function findCol(headerRow, candidates){
+  for(var i=0;i<headerRow.length;i++){
+    var h=(headerRow[i]||'').toString().trim().toLowerCase();
+    for(var c=0;c<candidates.length;c++){
+      if(h.indexOf(candidates[c])===0 || h===candidates[c]) return i;
+    }
+  }
+  return -1;
+}
+function handleImport(evt){
+  var file=evt.target.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=new Uint8Array(e.target.result);
+      var wb=XLSX.read(data,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+      if(!rows.length){el('importInd').textContent='Arquivo vazio';return;}
+      var header=rows[0];
+      var colLote=findCol(header,['lote']);
+      var colAnm=findCol(header,['anm','animais','qtd']);
+      var colPv=findCol(header,['pv (cab)','pv(cab)','pv','peso vivo','peso']);
+      if(colLote<0||colAnm<0||colPv<0){
+        el('importInd').textContent='⚠ Não encontrei colunas Lote/Anm/PV no arquivo';
+        return;
+      }
+      var novos=[];
+      for(var r=1;r<rows.length;r++){
+        var row=rows[r];
+        if(!row) continue;
+        var lote=row[colLote], anm=row[colAnm], pv=row[colPv];
+        if(lote==null && anm==null && pv==null) continue;
+        if(anm==null || pv==null) continue;
+        novos.push({id:'l'+Date.now()+'_'+r, lote:(lote!=null? lote.toString(): '(sem nome)'), anm:parseFloat(anm)||0, pv:parseFloat(pv)||0, incluir:true});
+      }
+      state.lotes=state.lotes.concat(novos);
+      state.data=new Date().toISOString().slice(0,10);
+      el('importInd').textContent='✅ '+novos.length+' lote(s) importado(s) — pesagem: '+formatDateBR(state.data);
+      calc(); salvarFazendaAtual();
+    }catch(ex){
+      el('importInd').textContent='⚠ Erro ao ler arquivo: '+ex.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  evt.target.value='';
+}
+function limparLotes(){
+  customConfirm('Remover todos os lotes importados desta fazenda? (compras geradas automaticamente também somem)', function(){
+    state.lotes=[]; state.overrides={}; calc(); salvarFazendaAtual();
+  });
+}
+function removerLote(id){
+  state.lotes=state.lotes.filter(function(l){return l.id!==id;});
+  calc(); salvarFazendaAtual();
+}
+function toggleLote(id,checked){
+  var l=state.lotes.find(function(x){return x.id===id;});
+  if(l) l.incluir=checked;
+  calc(); salvarFazendaAtual();
+}
+function editLoteField(id,field,val){
+  var l=state.lotes.find(function(x){return x.id===id;});
+  if(!l) return;
+  if(field==='lote') l.lote=val;
+  else l[field]=parseFloat(val)||0;
+  calc(); salvarFazendaAtual();
+}
+function toggleCompra(autoId,checked){
+  if(!state.overrides[autoId]) state.overrides[autoId]={};
+  state.overrides[autoId].incluir=checked;
+  calc(); salvarFazendaAtual();
+}
+function editCompraField(autoId,field,val){
+  if(!state.overrides[autoId]) state.overrides[autoId]={};
+  state.overrides[autoId][field]=parseFloat(val)||0;
+  calc(); salvarFazendaAtual();
+}
+function addCompraManual(){
+  state.comprasManual.push({id:'m'+Date.now(), anm:0, pv:state.pesoCompra, periodo:0, incluir:true});
+  calc(); salvarFazendaAtual();
+}
+function removeCompraManual(id){
+  state.comprasManual=state.comprasManual.filter(function(m){return m.id!==id;});
+  delete state.overrides[id];
+  calc(); salvarFazendaAtual();
+}
+function toggleCompraManual(id,checked){
+  var m=state.comprasManual.find(function(x){return x.id===id;});
+  if(m) m.incluir=checked;
+  calc(); salvarFazendaAtual();
+}
+function editCompraManualField(id,field,val){
+  var m=state.comprasManual.find(function(x){return x.id===id;});
+  if(!m) return;
+  if(field==='periodo') m.periodo=parseInt(val)||0;
+  else m[field]=parseFloat(val)||0;
+  calc(); salvarFazendaAtual();
+}
+function toggleSortCompra(){
+  state.sortCompra = state.sortCompra==='asc' ? 'desc' : (state.sortCompra==='desc' ? null : 'asc');
+  calc();
+}
+
+// ---------- TIMELINE / SIMULAÇÃO ----------
+function buildMonthsInfo(dataRef, numPeriods){
+  var arr=[];
+  var y=dataRef.getFullYear(), m=dataRef.getMonth(), day=dataRef.getDate();
+  var cum=0;
+  for(var i=0;i<numPeriods;i++){
+    var dim=daysInMonth(y,m);
+    var days=(i===0)?(dim-day+1):dim;
+    arr.push({year:y,month:m,days:days,start:cum,end:cum+days});
+    cum+=days;
+    m++; if(m>11){m=0;y++;}
+  }
+  return arr;
+}
+function periodIndexForDay(mi,d){
+  for(var i=0;i<mi.length;i++){ if(d>=mi[i].start && d<mi[i].end) return i; }
+  return mi.length-1;
+}
+function pesoEmDia(mi,w0,d0,dTarget){
+  if(dTarget<=d0) return w0;
+  var w=w0, i=periodIndexForDay(mi,d0), cur=d0;
+  while(cur<dTarget && i<mi.length){
+    var per=mi[i];
+    var segDays=Math.min(per.end-cur, dTarget-cur);
+    w+=efetivoGmd(per.month)*segDays;
+    cur+=segDays;
+    if(cur>=per.end) i++;
+  }
+  return w;
+}
+function diaDeSaida(mi,w0,d0,alvo){
+  var restante=alvo-w0;
+  if(restante<=0) return {dia:d0, fora:false, periodo:periodIndexForDay(mi,d0)};
+  var i=periodIndexForDay(mi,d0), cur=d0;
+  while(i<mi.length){
+    var per=mi[i];
+    var daysAvail=per.end-cur;
+    var gmd=efetivoGmd(per.month);
+    var ganho=gmd*daysAvail;
+    if(ganho>=restante){
+      var diasNec = gmd>0? Math.ceil(restante/gmd) : daysAvail;
+      var diaExit=cur+diasNec;
+      return {dia:diaExit, fora:(diaExit-d0)>365, periodo:i};
+    }
+    restante-=ganho; cur=per.end; i++;
+  }
+  return {dia:cur, fora:true, periodo:mi.length-1};
+}
+
+function buildSimulacao(){
+  var dataRef=new Date(state.data+'T00:00:00');
+  var mi=buildMonthsInfo(dataRef,18);
+  var allCohorts=[]; // histórico completo (importados + compras aceitas) — usado no censo e nos quadros
+  var displayCompra=[]; // uma entrada por mês (aceita ou rejeitada) — usado nas abas Lotes/Financeiro
+
+  function criarCohort(id,tag,anm,pv,dEntry){
+    var res=diaDeSaida(mi,pv,dEntry,state.pesoSaida);
+    var c={id:id,tag:tag,anm:anm,pvEntry:pv,dEntry:dEntry,dExit:res.dia,fora:res.fora,
+      periodoEntry:periodIndexForDay(mi,dEntry),periodoExit:res.periodo};
+    allCohorts.push(c);
+    return c;
+  }
+
+  var ativos=[];
+  state.lotes.forEach(function(l){
+    if(!l.incluir) return;
+    ativos.push(criarCohort(l.id,'importado',l.anm,l.pv,0));
+  });
+  state.comprasManual.forEach(function(m){
+    if(!m.incluir) return;
+    var p=Math.max(0,Math.min(11,m.periodo||0));
+    ativos.push(criarCohort(m.id,'manual',m.anm,m.pv,mi[p].start));
+  });
+
+  // varre mês a mês; todo cohort que sai no mesmo mês vira UMA única compra consolidada
+  for(var p=0;p<12;p++){
+    var saindo = ativos.filter(function(c){ return !c.fora && c.periodoExit===p; });
+    var totalSai=0; saindo.forEach(function(c){ totalSai+=c.anm; });
+    if(saindo.length){ ativos = ativos.filter(function(c){ return saindo.indexOf(c)<0; }); }
+
+    if(state.comCompra){
+      var autoId='compra_p'+p;
+      var anmCalc, infoAlvo=null;
+      if(state.modoCompra==='troca'){
+        anmCalc = totalSai*efetivoTroca(mi[p].month);
+      } else {
+        var dEnd=mi[p].end, pesoAntes=0;
+        ativos.forEach(function(c){ if(c.dEntry<=dEnd && dEnd<c.dExit) pesoAntes+=c.anm*pesoEmDia(mi,c.pvEntry,c.dEntry,dEnd); });
+        var alvoUA=efetivoCapacidade(mi[p].month)*state.area*(state.alvoPct/100);
+        var gapKg=alvoUA*state.uaKg-pesoAntes;
+        var pesoCabFim=pesoEmDia(mi,state.pesoCompra,mi[p].start,dEnd);
+        anmCalc=(gapKg>0&&pesoCabFim>0)? Math.floor(gapKg/pesoCabFim) : 0;
+        if(anmCalc<state.compraMin) anmCalc=0;
+        infoAlvo={alvoUA:alvoUA, uaAntes:pesoAntes/state.uaKg, gapKg:gapKg};
+      }
+      anmCalc=Math.round(anmCalc);
+      var ov=state.overrides[autoId]||{};
+      var anmFinal=(ov.anm!=null)?ov.anm:anmCalc;
+      var pvFinal=(ov.pv!=null)?ov.pv:state.pesoCompra;
+      var incluida = ov.incluir!==false;
+      if(anmFinal>0 || ov.anm!=null){
+        if(incluida){
+          var novo=criarCohort(autoId,'compra',anmFinal,pvFinal,mi[p].start);
+          novo.infoAlvo=infoAlvo;
+          ativos.push(novo);
+          displayCompra.push(novo);
+        } else {
+          displayCompra.push({id:autoId,tag:'compra',anm:anmFinal,pvEntry:pvFinal,dEntry:mi[p].start,dExit:null,fora:false,
+            periodoEntry:p,periodoExit:null,excluido:true,infoAlvo:infoAlvo});
+        }
+      }
+    }
+  }
+  return {mi:mi, simNodes:allCohorts, displayCompra:displayCompra};
+}
+
+// ---------- RENDER LOTES TABLE ----------
+function ordenarLotesPor(campo){
+  if(state.sortLotesCampo===campo){
+    state.sortLotes = state.sortLotes==='asc' ? 'desc' : (state.sortLotes==='desc' ? null : 'asc');
+  } else {
+    state.sortLotesCampo=campo;
+    state.sortLotes='asc';
+  }
+  calc();
+}
+function toggleSelecaoLote(id,checked){
+  if(checked) selecaoRelatorioLotes[id]=true; else delete selecaoRelatorioLotes[id];
+  renderLotes(buildSimulacao());
+}
+function toggleSelecaoTodosLotesVisiveis(checked){
+  var checks=document.querySelectorAll('#tbl_lotes .selchk');
+  for(var i=0;i<checks.length;i++){
+    var id=checks[i].getAttribute('data-id');
+    if(checked) selecaoRelatorioLotes[id]=true; else delete selecaoRelatorioLotes[id];
+  }
+  renderLotes(buildSimulacao());
+}
+function limparSelecaoLotes(){
+  selecaoRelatorioLotes={};
+  renderLotes(buildSimulacao());
+}
+function renderLotes(sim){
+  var wrap=el('tbl_lotes');
+  var hasAny = state.lotes.length>0;
+  if(!hasAny){ wrap.innerHTML=''; el('lotes_empty').style.display='block'; el('lotes_resumo').innerHTML=''; el('lotes_selecao').innerHTML=''; return; }
+  el('lotes_empty').style.display='none';
+
+  var rows=[];
+  state.lotes.forEach(function(l){
+    var node=sim.simNodes.find(function(n){return n.id===l.id;});
+    var dias = node? (node.dExit-node.dEntry) : null;
+    rows.push({l:l, node:node, sortKeys:{ mes: node?node.dExit:Infinity, peso: Number(l.pv)||0, anm: Number(l.anm)||0, dias: dias==null?Infinity:dias }});
+  });
+
+  var campoOrd=state.sortLotesCampo||'mes';
+  if(state.sortLotes==='asc') rows.sort(function(a,b){return a.sortKeys[campoOrd]-b.sortKeys[campoOrd];});
+  else if(state.sortLotes==='desc') rows.sort(function(a,b){return b.sortKeys[campoOrd]-a.sortKeys[campoOrd];});
+
+  var incluidos=state.lotes.filter(function(l){return l.incluir;}),totalCab=incluidos.reduce(function(s,l){return s+(Number(l.anm)||0);},0),totalKg=incluidos.reduce(function(s,l){return s+(Number(l.anm)||0)*(Number(l.pv)||0);},0),pesoMedio=totalCab?totalKg/totalCab:0;
+  el('lotes_resumo').innerHTML='<div class="kpibox"><div class="kl">Lotes incluídos</div><div class="kv">'+incluidos.length+'</div></div><div class="kpibox"><div class="kl">Total de animais</div><div class="kv gn">'+Math.round(totalCab).toLocaleString('pt-BR')+' cab</div></div><div class="kpibox"><div class="kl">Peso médio ponderado</div><div class="kv gd">'+fmtPtBR(pesoMedio,1)+' kg</div></div><div class="kpibox"><div class="kl">Peso vivo total</div><div class="kv">'+fmtPtBR(Math.round(totalKg),0)+' kg</div></div>';
+
+  var totalAntesFiltro=rows.length;
+  var buscaEl=el('lotes_busca'), busca=buscaEl?buscaEl.value.trim().toLowerCase():'';
+  var mostrarZeroEl=el('lotes_mostrar_zero'), mostrarZero=mostrarZeroEl?mostrarZeroEl.checked:false;
+  if(busca) rows=rows.filter(function(r){return String(r.l.lote).toLowerCase().indexOf(busca)>=0;});
+  if(!mostrarZero) rows=rows.filter(function(r){return (Number(r.l.anm)||0)>0;});
+  var ocultos=totalAntesFiltro-rows.length;
+  var filtroInd=el('lotes_filtro_ind');
+  if(filtroInd) filtroInd.textContent = ocultos>0 ? ('('+ocultos+' oculto'+(ocultos>1?'s':'')+(!mostrarZero&&!busca?' com 0 animais':'')+')') : '';
+
+  // descarta seleção de lotes que já não existem mais (removidos/importação nova)
+  Object.keys(selecaoRelatorioLotes).forEach(function(id){ if(!state.lotes.some(function(l){return l.id===id;})) delete selecaoRelatorioLotes[id]; });
+
+  function seta(campoCol){
+    if(campoOrd!==campoCol) return '';
+    return state.sortLotes==='asc' ? ' ▲' : (state.sortLotes==='desc' ? ' ▼' : '');
+  }
+  var idsVisiveis=rows.map(function(r){return r.l.id;});
+  var todosMarcados = idsVisiveis.length>0 && idsVisiveis.every(function(id){return selecaoRelatorioLotes[id];});
+
+  var h='<tr>';
+  h+='<th style="width:52px" title="Marca/desmarca todos os visíveis — os marcados entram no alerta de retirada"><input type="checkbox" '+(todosMarcados?'checked':'')+' onchange="toggleSelecaoTodosLotesVisiveis(this.checked)"><br><span style="font-size:8px;font-weight:400">Alertar</span></th>';
+  h+='<th style="width:52px" title="Se desmarcado, o lote sai do cálculo do rebanho (censo, saldo, etc.)">Incluir</th>';
+  h+='<th class="name">Lote</th>';
+  h+='<th class="sortable" onclick="ordenarLotesPor(\'anm\')">Anm'+seta('anm')+'</th>';
+  h+='<th class="sortable" onclick="ordenarLotesPor(\'peso\')">Peso (kg)'+seta('peso')+'</th>';
+  h+='<th>Peso a ganhar</th>';
+  h+='<th class="sortable" onclick="ordenarLotesPor(\'dias\')">Dias previstos'+seta('dias')+'</th>';
+  h+='<th class="sortable" onclick="ordenarLotesPor(\'mes\')">Mês de saída'+seta('mes')+'</th>';
+  h+='<th>Status</th><th></th></tr>';
+
+  rows.forEach(function(r){
+    var l=r.l, node=r.node;
+    var ganhar=Math.max(0,state.pesoSaida-l.pv);
+    var mesLbl='—', diasLbl='—', statusHtml='';
+    if(node){
+      diasLbl=(node.dExit-node.dEntry)+' dias';
+      var pinfo=sim.mi[node.periodoExit];
+      mesLbl=MESES[pinfo.month]+'/'+pinfo.year.toString().slice(2);
+      statusHtml = node.fora? '<span class="tag late">Fora do prazo</span>' : '<span class="tag ok">Dentro do prazo</span>';
+    }
+    var sel=!!selecaoRelatorioLotes[l.id];
+    h+='<tr'+(sel?' class="selecionado"':'')+'>';
+    h+='<td><input type="checkbox" class="selchk" data-id="'+l.id+'" '+(sel?'checked':'')+' title="Selecionar p/ alerta de retirada" onchange="toggleSelecaoLote(\''+l.id+'\',this.checked)"></td>';
+    h+='<td><input type="checkbox" '+(l.incluir?'checked':'')+' title="Incluir no cálculo do rebanho" onchange="toggleLote(\''+l.id+'\',this.checked)"></td>';
+    h+='<td class="name"><input type="text" value="'+String(l.lote).replace(/"/g,'&quot;')+'" style="width:150px;background:transparent;border:none;color:var(--txt);font-family:var(--mono);font-weight:700" onchange="editLoteField(\''+l.id+'\',\'lote\',this.value)"></td>';
+    h+='<td class="num"><input type="number" value="'+l.anm+'" style="width:65px;background:transparent;border:none;color:var(--txt);text-align:center;font-family:var(--mono);font-weight:700" onchange="editLoteField(\''+l.id+'\',\'anm\',this.value)"></td>';
+    h+='<td class="num"><input type="number" value="'+l.pv+'" style="width:75px;background:transparent;border:none;color:var(--txt);text-align:center;font-family:var(--mono);font-weight:700" onchange="editLoteField(\''+l.id+'\',\'pv\',this.value)"></td>';
+    h+='<td class="num">'+ganhar.toFixed(1)+' kg</td>';
+    h+='<td class="num">'+diasLbl+'</td>';
+    h+='<td class="num">'+mesLbl+'</td>';
+    h+='<td>'+statusHtml+'</td>';
+    h+='<td><button class="smbtn" onclick="removerLote(\''+l.id+'\')">✕</button></td>';
+    h+='</tr>';
+  });
+
+  wrap.innerHTML=h;
+
+  // resumo ao vivo da seleção p/ alerta — some sozinho, sem precisar fazer mais nada
+  var selEl=el('lotes_selecao');
+  var selecionados=state.lotes.filter(function(l){return selecaoRelatorioLotes[l.id];});
+  if(!selecionados.length){ selEl.innerHTML=''; return; }
+  var sTotalCab=selecionados.reduce(function(s,l){return s+(Number(l.anm)||0);},0);
+  var sTotalKg=selecionados.reduce(function(s,l){return s+(Number(l.anm)||0)*(Number(l.pv)||0);},0);
+  var sPesoMedio=sTotalCab?sTotalKg/sTotalCab:0;
+  var diasArr=selecionados.map(function(l){
+    var node=sim.simNodes.find(function(n){return n.id===l.id;});
+    return node?(node.dExit-node.dEntry):null;
+  }).filter(function(v){return v!=null;});
+  var diasTxt='—';
+  if(diasArr.length){
+    var diasMin=Math.min.apply(null,diasArr), diasMax=Math.max.apply(null,diasArr);
+    diasTxt = diasMin===diasMax ? (diasMin+' dias') : (diasMin+'–'+diasMax+' dias');
+  }
+  selEl.innerHTML='<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--gld);border-radius:8px">'+
+    '<span style="font-weight:700;color:var(--gld)">🔔 '+selecionados.length+' selecionado'+(selecionados.length>1?'s':'')+'</span>'+
+    '<span style="color:var(--txt2)">'+Math.round(sTotalCab).toLocaleString('pt-BR')+' cab</span>'+
+    '<span style="color:var(--txt2)">peso médio '+fmtPtBR(sPesoMedio,1)+' kg</span>'+
+    '<span style="color:var(--txt2)">'+diasTxt+'</span>'+
+    '<button class="hbtn hbp" style="margin-left:auto" onclick="gerarPDFAlertaLotes()">📄 Gerar PDF de alerta (mandar pro coordenador)</button>'+
+    '<button class="smbtn" onclick="limparSelecaoLotes()">Limpar seleção</button>'+
+  '</div>';
+}
+function gerarPDFAlertaLotes(){
+  var sim=buildSimulacao();
+  var selecionados=state.lotes.filter(function(l){return selecaoRelatorioLotes[l.id];});
+  if(!selecionados.length){ alert('Selecione ao menos um lote (checkbox da primeira coluna) antes de gerar o alerta.'); return; }
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  var linhas=selecionados.map(function(l){
+    var node=sim.simNodes.find(function(n){return n.id===l.id;});
+    var mesLbl='—', diasLbl='—';
+    if(node){
+      diasLbl=(node.dExit-node.dEntry)+' dias';
+      var pinfo=sim.mi[node.periodoExit];
+      mesLbl=MESES[pinfo.month]+'/'+pinfo.year.toString().slice(2);
+    }
+    return {lote:l.lote, anm:Number(l.anm)||0, pv:Number(l.pv)||0, dias:diasLbl, mes:mesLbl};
+  });
+  var totalCab=linhas.reduce(function(s,l){return s+l.anm;},0);
+  var totalKg=linhas.reduce(function(s,l){return s+l.anm*l.pv;},0);
+  var pesoMedio=totalCab?totalKg/totalCab:0;
+
+  var css='<style>'+
+    '@page{size:A4 portrait;margin:12mm}'+
+    '*{box-sizing:border-box}'+
+    'body{margin:0;background:#fff;color:#1e2b23;font-family:Arial,sans-serif;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '.head{background:#173c2b;color:#fff;border-bottom:4px solid #c99a3b;border-radius:4mm;padding:6mm 7mm;display:flex;justify-content:space-between;align-items:flex-end}'+
+    '.brand{font-size:8pt;letter-spacing:1.6px;font-weight:900;opacity:.8}'+
+    '.farm{font-size:20pt;font-weight:900;margin-top:1mm}'+
+    '.meta{text-align:right;font-size:8pt;line-height:1.5}'+
+    '.alerta{margin:5mm 0;padding:3mm 4mm;background:#fbeee0;border:1px solid #d9a35f;border-left:4px solid #c99a3b;border-radius:2mm;color:#5f3a10;font-size:11.5pt;font-weight:700}'+
+    '.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin:4mm 0}'+
+    '.kpi{border:1px solid #d7ddd8;border-radius:3mm;background:#f7f7f5;padding:3mm}'+
+    '.kpi span{display:block;color:#6b756f;font-size:7pt;text-transform:uppercase;font-weight:900;letter-spacing:.4px}'+
+    '.kpi b{display:block;color:#173c2b;font-size:15pt;margin-top:1.5mm}'+
+    'table{width:100%;border-collapse:collapse;margin-top:3mm;font-size:9.5pt}'+
+    'th,td{border:1px solid #c8cfca;padding:2mm 1.5mm;text-align:center}'+
+    'th{background:#173c2b;color:#fff;font-weight:900}'+
+    'td.lbl{text-align:left;font-weight:700}'+
+    'tr:nth-child(even) td{background:#f7f7f5}'+
+    '.note{margin-top:4mm;padding:3mm 4mm;background:#f2eee1;border-left:3px solid #c99a3b;border-radius:2mm;color:#5f685f;font-size:9.5pt}'+
+    '.footer{margin-top:5mm;border-top:1px solid #d7ddd8;padding-top:2mm;color:#6b756f;font-size:8pt;display:flex;justify-content:space-between}'+
+    '@media print{button{display:none}}'+
+  '</style>';
+
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Alerta de retirada — '+esc(state.fazenda)+'</title>'+css+'</head><body>';
+  h+='<div class="head"><div><div class="brand">RURAL PASTAGEM · ALERTA DE RETIRADA</div><div class="farm">'+esc(state.fazenda)+'</div></div><div class="meta">Estudo em '+new Date().toLocaleDateString('pt-BR')+'<br>Pesagem '+formatDateBR(state.data)+'</div></div>';
+  h+='<div class="alerta">⚠️ Fique de olho: os lotes abaixo estão prontos ou perto do ponto de saída. Programar a retirada.</div>';
+  h+='<div class="kpis"><div class="kpi"><span>Lotes selecionados</span><b>'+linhas.length+'</b></div><div class="kpi"><span>Total de animais</span><b>'+Math.round(totalCab).toLocaleString('pt-BR')+' cab</b></div><div class="kpi"><span>Peso médio ponderado</span><b>'+fmtPtBR(pesoMedio,1)+' kg</b></div></div>';
+  h+='<table><tr><th class="lbl">Lote</th><th>Animais</th><th>Peso atual (kg)</th><th>Dias previstos</th><th>Mês de saída sugerido</th></tr>';
+  linhas.forEach(function(l){
+    h+='<tr><td class="lbl">'+esc(l.lote)+'</td><td>'+Math.round(l.anm).toLocaleString('pt-BR')+'</td><td>'+fmtPtBR(l.pv,0)+'</td><td>'+l.dias+'</td><td>'+l.mes+'</td></tr>';
+  });
+  h+='</table>';
+  h+='<div class="note">Enviar para o coordenador de campo responsável. Peso de saída de referência da fazenda: '+fmtPtBR(state.pesoSaida,0)+' kg.</div>';
+  h+='<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO</span><span>'+esc(state.fazenda)+' · '+new Date().toLocaleDateString('pt-BR')+'</span></div>';
+  h+='</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(h); w.document.close();
+  setTimeout(function(){w.print();},650);
+}
+
+// ---------- RENDER ABA COMPRA (automáticas + manuais) ----------
+function renderCompraAba(sim, mesesLabels){
+  var vp=el('compra_valorpadrao'); if(vp) vp.value=state.valorCabPadraoUSD.toFixed(2);
+
+  var rows=[];
+  sim.displayCompra.forEach(function(c){
+    rows.push({tipo:'auto', c:c, sortKey: c.dEntry});
+  });
+  state.comprasManual.forEach(function(m){
+    var node=sim.simNodes.find(function(n){return n.id===m.id;});
+    var p=Math.max(0,Math.min(11,m.periodo||0));
+    rows.push({tipo:'manual', m:m, node:node, sortKey: sim.mi[p].start});
+  });
+
+  var wrap=el('tbl_compra_aba');
+  var resumoRows=[];sim.displayCompra.forEach(function(c){if(!c.excluido)resumoRows.push({id:c.id,anm:c.anm,pv:c.pvEntry});});state.comprasManual.forEach(function(m){if(m.incluir)resumoRows.push({id:m.id,anm:m.anm,pv:m.pv});});
+  var totalCab=resumoRows.reduce(function(s,x){return s+(Number(x.anm)||0);},0),totalKg=resumoRows.reduce(function(s,x){return s+(Number(x.anm)||0)*(Number(x.pv)||0);},0),totalValor=resumoRows.reduce(function(s,x){var ov=state.overrides[x.id]||{},v=ov.valorCabUSD!=null?ov.valorCabUSD:state.valorCabPadraoUSD;return s+(Number(x.anm)||0)*(Number(v)||0);},0);
+  el('compra_resumo').innerHTML='<div class="kpibox"><div class="kl">Lotes de compra</div><div class="kv">'+resumoRows.length+'</div></div><div class="kpibox"><div class="kl">Total de animais</div><div class="kv gn">'+Math.round(totalCab).toLocaleString('pt-BR')+' cab</div></div><div class="kpibox"><div class="kl">Peso médio ponderado</div><div class="kv gd">'+fmtPtBR(totalCab?totalKg/totalCab:0,1)+' kg</div></div><div class="kpibox"><div class="kl">Valor total previsto</div><div class="kv gd">'+fmtMoeda(totalValor)+'</div></div>';
+  if(!rows.length){ wrap.innerHTML=''; el('compra_empty').style.display='block'; updateSortCompraBtn(); return; }
+  el('compra_empty').style.display='none';
+
+  if(state.sortCompra==='asc') rows.sort(function(a,b){return a.sortKey-b.sortKey;});
+  else if(state.sortCompra==='desc') rows.sort(function(a,b){return b.sortKey-a.sortKey;});
+
+  var h='<tr><th></th><th class="name">Origem / Mês</th><th>Anm</th><th>Peso (kg)</th><th>Valor/cab (US$)</th><th>Custo total</th><th>Status</th><th></th></tr>';
+
+  rows.forEach(function(r){
+    if(r.tipo==='auto'){
+      var c=r.c;
+      var entryInfo=sim.mi[c.periodoEntry];
+      var entradaLbl = entryInfo? (MESES[entryInfo.month]+'/'+entryInfo.year.toString().slice(2)) : '—';
+      var ov=state.overrides[c.id]||{};
+      var valorUSD = ov.valorCabUSD!=null ? ov.valorCabUSD : state.valorCabPadraoUSD;
+      var custoTotal = valorUSD*c.anm;
+      var statusHtml='<span class="tag wait">Aguardando</span>';
+      if(!c.excluido && c.dExit!=null){ statusHtml = c.fora? '<span class="tag late">Fora do prazo</span>' : '<span class="tag ok">Dentro do prazo</span>'; }
+      h+='<tr class="compra'+(c.excluido?' excluida':'')+'">';
+      h+='<td><input type="checkbox" '+(c.excluido?'':'checked')+' onchange="toggleCompra(\''+c.id+'\',this.checked)"></td>';
+      h+='<td class="name"><span class="tag compra">🔧 Automática</span><br><span style="font-size:9px;color:var(--txt3)">entra em '+entradaLbl+'</span></td>';
+      h+='<td class="num"><input type="number" value="'+Math.round(c.anm)+'" style="width:55px;background:transparent;border:none;color:var(--gld);text-align:center;font-family:var(--mono);font-weight:700" onchange="editCompraField(\''+c.id+'\',\'anm\',this.value)"></td>';
+      h+='<td class="num"><input type="number" value="'+c.pvEntry+'" style="width:65px;background:transparent;border:none;color:var(--gld);text-align:center;font-family:var(--mono);font-weight:700" onchange="editCompraField(\''+c.id+'\',\'pv\',this.value)"></td>';
+      h+='<td class="num"><input type="number" value="'+(valorUSD?valorUSD.toFixed(2):'')+'" placeholder="0.00" style="width:80px;background:transparent;border:none;color:var(--gld);text-align:center;font-family:var(--mono);font-weight:700" onchange="editValorCab(\''+c.id+'\',this.value)"></td>';
+      h+='<td class="num" style="color:var(--txt);font-weight:700">'+fmtMoeda(custoTotal)+'</td>';
+      h+='<td>'+statusHtml+'</td>';
+      h+='<td></td>';
+      h+='</tr>';
+    } else {
+      var m=r.m, node=r.node;
+      var ov=state.overrides[m.id]||{};
+      var valorUSD = ov.valorCabUSD!=null ? ov.valorCabUSD : state.valorCabPadraoUSD;
+      var custoTotal = valorUSD*m.anm;
+      var statusHtml='<span class="tag wait">Aguardando</span>';
+      if(node){ statusHtml = node.fora? '<span class="tag late">Fora do prazo</span>' : '<span class="tag ok">Dentro do prazo</span>'; }
+      var mesSelect='<select style="width:70px;background:var(--bg3);border:1px solid var(--brd);color:var(--txt);font-family:var(--mono);font-size:11px" onchange="editCompraManualField(\''+m.id+'\',\'periodo\',this.value)">';
+      mesesLabels.forEach(function(lbl,idx){ mesSelect+='<option value="'+idx+'" '+(idx===(m.periodo||0)?'selected':'')+'>'+lbl+'</option>'; });
+      mesSelect+='</select>';
+      h+='<tr class="compra'+(!m.incluir?' excluida':'')+'">';
+      h+='<td><input type="checkbox" '+(m.incluir?'checked':'')+' onchange="toggleCompraManual(\''+m.id+'\',this.checked)"></td>';
+      h+='<td class="name"><span class="tag" style="background:#f1ebf8;color:#604787;border:1px solid #b9a5d1">✍️ Manual</span><br>'+mesSelect+'</td>';
+      h+='<td class="num"><input type="number" value="'+m.anm+'" style="width:55px;background:transparent;border:none;color:var(--pur);text-align:center;font-family:var(--mono);font-weight:700" onchange="editCompraManualField(\''+m.id+'\',\'anm\',this.value)"></td>';
+      h+='<td class="num"><input type="number" value="'+m.pv+'" style="width:65px;background:transparent;border:none;color:var(--pur);text-align:center;font-family:var(--mono);font-weight:700" onchange="editCompraManualField(\''+m.id+'\',\'pv\',this.value)"></td>';
+      h+='<td class="num"><input type="number" value="'+(valorUSD?valorUSD.toFixed(2):'')+'" placeholder="0.00" style="width:80px;background:transparent;border:none;color:var(--pur);text-align:center;font-family:var(--mono);font-weight:700" onchange="editValorCab(\''+m.id+'\',this.value)"></td>';
+      h+='<td class="num" style="color:var(--txt);font-weight:700">'+fmtMoeda(custoTotal)+'</td>';
+      h+='<td>'+statusHtml+'</td>';
+      h+='<td><button class="smbtn" onclick="removeCompraManual(\''+m.id+'\')">✕</button></td>';
+      h+='</tr>';
+    }
+  });
+
+  wrap.innerHTML=h;
+  updateSortCompraBtn();
+}
+function updateSortCompraBtn(){
+  var b=el('btnSortCompra');
+  if(!b) return;
+  var lbl = state.sortCompra==='asc' ? '↑ Mês de compra (crescente)' : (state.sortCompra==='desc' ? '↓ Mês de compra (decrescente)' : '↕ Ordenar por mês de compra');
+  b.textContent=lbl;
+}
+
+// ---------- CONSOLIDADO (independente de fazenda — junta vários planos exportados) ----------
+var CONSOLIDADO_KEY='ruralPastagemBETA_consolidado';
+var consolidadoState={ planos:[] }; // {id, fazenda, nome, mesesLabels, saidaDist, compraDist, custoPorMes, totalSaida, totalCompra, totalCusto}
+var consolidadoFazendaAberta=null;
+
+function carregarConsolidado(){
+  var raw=null; try{ raw=localStorage.getItem(CONSOLIDADO_KEY); }catch(ex){}
+  if(raw){ try{ consolidadoState=JSON.parse(raw); if(!Array.isArray(consolidadoState.planos)) consolidadoState.planos=[]; }catch(ex){ consolidadoState={planos:[]}; } }
+}
+function salvarConsolidado(){ try{ localStorage.setItem(CONSOLIDADO_KEY, JSON.stringify(consolidadoState)); }catch(ex){} }
+
+function importarPlanosConsolidado(evt){
+  var files=Array.from(evt.target.files||[]);
+  if(!files.length) return;
+  var lidos=0, erros=0, avisos=[];
+  files.forEach(function(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var payload=JSON.parse(e.target.result);
+        var origem=null;
+
+        if(payload && payload.tipo==='rural_pastagem_plano_confirmado'){
+          origem={
+            fazenda:payload.fazenda, nome:payload.nome,
+            mesesLabels:payload.mesesLabels, saidaDist:payload.saidaDist.slice(), compraDist:payload.compraDist.slice(),
+            custoPorMes:payload.custoPorMes.slice(),
+            totalSaida:payload.totalSaida, totalCompra:payload.totalCompra, totalCusto:payload.totalCusto
+          };
+        } else if(payload && payload.tipo==='rural_pastagem_fazenda_completa'){
+          var planos=Array.isArray(payload.planosConfirmados)? payload.planosConfirmados : [];
+          if(!planos.length){
+            avisos.push((payload.fazenda||file.name)+': essa fazenda ainda não tem nenhum Plano Confirmado');
+            throw new Error('sem plano confirmado');
+          }
+          var maisRecente=planos.slice().sort(function(a,b){ return new Date(b.dataConfirmacao)-new Date(a.dataConfirmacao); })[0];
+          origem={
+            fazenda:payload.fazenda, nome:maisRecente.nome,
+            mesesLabels:maisRecente.mesesLabels, saidaDist:maisRecente.saidaDist.slice(), compraDist:maisRecente.compraDist.slice(),
+            custoPorMes:maisRecente.custoPorMes.slice(),
+            totalSaida:maisRecente.totalSaida, totalCompra:maisRecente.totalCompra, totalCusto:maisRecente.totalCusto
+          };
+          avisos.push((payload.fazenda||'')+': usado o plano mais recente ("'+maisRecente.nome+'"), de '+planos.length+' confirmado(s) nessa fazenda');
+        } else {
+          throw new Error('tipo inválido');
+        }
+
+        consolidadoState.planos.push(Object.assign({id:'cons_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)}, origem));
+        lidos++;
+      }catch(ex){ erros++; }
+      if(lidos+erros===files.length){
+        salvarConsolidado();
+        renderConsolidado();
+        var ind=el('consolidadoInd');
+        var msg='✅ '+lidos+' plano(s) importado(s)'+(erros?' · ⚠ '+erros+' arquivo(s) inválido(s)':'');
+        if(ind){ ind.textContent=msg; setTimeout(function(){ind.textContent='';},5000); }
+        if(avisos.length) console.log('Consolidado — avisos de importação:\n'+avisos.join('\n'));
+      }
+    };
+    reader.readAsText(file);
+  });
+  evt.target.value='';
+}
+function removerPlanoConsolidado(id){
+  customConfirm('Remover esta fazenda do consolidado?', function(){
+    consolidadoState.planos=consolidadoState.planos.filter(function(p){return p.id!==id;});
+    if(consolidadoFazendaAberta===id) consolidadoFazendaAberta=null;
+    salvarConsolidado(); renderConsolidado();
+  });
+}
+function toggleFazendaConsolidado(id){
+  consolidadoFazendaAberta = (consolidadoFazendaAberta===id) ? null : id;
+  renderConsolidado();
+}
+function editarConsolidado(id,campo,idx,val){
+  var p=consolidadoState.planos.find(function(x){return x.id===id;});
+  if(!p) return;
+  var v=parseFloat(val)||0;
+  if(campo==='saida') p.saidaDist[idx]=v;
+  else if(campo==='compra') p.compraDist[idx]=v;
+  else if(campo==='custo') p.custoPorMes[idx]=v;
+  p.totalSaida=p.saidaDist.reduce(function(a,b){return a+b;},0);
+  p.totalCompra=p.compraDist.reduce(function(a,b){return a+b;},0);
+  p.totalCusto=p.custoPorMes.reduce(function(a,b){return a+b;},0);
+  salvarConsolidado(); renderConsolidado();
+}
+
+function mesSortKey(lbl){
+  var partes=lbl.split('/'); var mi=MESES.indexOf(partes[0]); var yy=parseInt(partes[1],10)||0;
+  return (2000+yy)*12+(mi<0?0:mi);
+}
+function buildGlobalMonths(planos){
+  var set={};
+  planos.forEach(function(p){ p.mesesLabels.forEach(function(m){ set[m]=true; }); });
+  var arr=Object.keys(set);
+  arr.sort(function(a,b){ return mesSortKey(a)-mesSortKey(b); });
+  return arr;
+}
+function valorNoMesGlobal(p, arr, mesLabel){
+  var idx=p.mesesLabels.indexOf(mesLabel);
+  return idx>=0 ? arr[idx] : 0;
+}
+
+function renderConsolidado(){
+  var wrap=el('consolidado_lista');
+  var planos=consolidadoState.planos;
+  if(!planos.length){
+    wrap.innerHTML=''; el('consolidado_empty').style.display='block';
+    el('consolidado_fazenda_detalhe').innerHTML=''; el('consolidado_totais').innerHTML='';
+    return;
+  }
+  el('consolidado_empty').style.display='none';
+
+  var h='';
+  planos.forEach(function(p){
+    var ativo = p.id===consolidadoFazendaAberta;
+    h+='<div style="display:flex;align-items:center;gap:4px">';
+    h+='<button class="msbtn'+(ativo?' on':'')+'" onclick="toggleFazendaConsolidado(\''+p.id+'\')">'+p.fazenda+' · '+p.nome+'</button>';
+    h+='<button class="smbtn" onclick="removerPlanoConsolidado(\''+p.id+'\')">✕</button>';
+    h+='</div>';
+  });
+  wrap.innerHTML=h;
+
+  // detalhe da fazenda selecionada — exatamente o que ela mandou, editável
+  var det=el('consolidado_fazenda_detalhe');
+  var aberta = planos.find(function(p){return p.id===consolidadoFazendaAberta;});
+  if(aberta){
+    var dh='<div class="card"><div class="ct">📌 '+aberta.fazenda+' — '+aberta.nome+'<span style="font-size:9px;color:var(--txt3);font-weight:400;margin-left:8px">o que essa fazenda mandou, editável se quiser ajustar</span></div>';
+    dh+='<div class="tblwrap"><table class="curve"><tr><th class="lbl">Mês</th>';
+    aberta.mesesLabels.forEach(function(m){dh+='<th>'+m+'</th>';}); dh+='</tr>';
+    dh+='<tr><td class="lbl" style="color:var(--gld)">Saída (cab)</td>';
+    aberta.saidaDist.forEach(function(v,i){dh+='<td><input type="number" value="'+Math.round(v)+'" style="width:100%;background:transparent;border:none;color:var(--gld);text-align:center;font-family:var(--mono)" onchange="editarConsolidado(\''+aberta.id+'\',\'saida\','+i+',this.value)"></td>';});
+    dh+='</tr><tr><td class="lbl" style="color:var(--grn)">Entrada/Compra (cab)</td>';
+    aberta.compraDist.forEach(function(v,i){dh+='<td><input type="number" value="'+Math.round(v)+'" style="width:100%;background:transparent;border:none;color:var(--grn);text-align:center;font-family:var(--mono)" onchange="editarConsolidado(\''+aberta.id+'\',\'compra\','+i+',this.value)"></td>';});
+    dh+='</tr><tr><td class="lbl">Necessidade de caixa (US$)</td>';
+    aberta.custoPorMes.forEach(function(v,i){dh+='<td><input type="number" value="'+v.toFixed(0)+'" style="width:100%;background:transparent;border:none;color:var(--txt);text-align:center;font-family:var(--mono)" onchange="editarConsolidado(\''+aberta.id+'\',\'custo\','+i+',this.value)"></td>';});
+    dh+='</tr></table></div>';
+    dh+='<div class="g4kpi"><div class="kpibox"><div class="kl">Total saída</div><div class="kv">'+Math.round(aberta.totalSaida)+'</div></div><div class="kpibox"><div class="kl">Total compra</div><div class="kv gn">'+Math.round(aberta.totalCompra)+'</div></div><div class="kpibox"><div class="kl">Investimento total</div><div class="kv gd">'+fmtMoeda(aberta.totalCusto)+'</div></div><div class="kpibox"><div class="kl">Custo médio/cab</div><div class="kv">'+fmtMoeda(aberta.totalCompra>0?aberta.totalCusto/aberta.totalCompra:0)+'</div></div></div>';
+    dh+='</div>';
+    det.innerHTML=dh;
+  } else {
+    det.innerHTML='';
+  }
+
+  // totais do grupo — sempre visível
+  var meses=buildGlobalMonths(planos);
+  var saidaTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.saidaDist,m);},0); });
+  var compraTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.compraDist,m);},0); });
+  var custoTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.custoPorMes,m);},0); });
+  var totalSaidaGrupo=saidaTot.reduce(function(a,b){return a+b;},0);
+  var totalCompraGrupo=compraTot.reduce(function(a,b){return a+b;},0);
+  var totalCustoGrupo=custoTot.reduce(function(a,b){return a+b;},0);
+  var picoIdx=0; custoTot.forEach(function(v,i){ if(v>custoTot[picoIdx]) picoIdx=i; });
+
+  // séries por fazenda (pra empilhar no gráfico e montar as tabelas por fazenda)
+  var farmsSaida = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.saidaDist,m);})}; });
+  var farmsCompra = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.compraDist,m);})}; });
+  var farmsCusto = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.custoPorMes,m);})}; });
+
+  var th='<div class="card" style="border-top:3px solid var(--gld)"><div class="ct">🏘 Total do Grupo ('+planos.length+' fazenda'+(planos.length>1?'s':'')+')</div>';
+  th+='<div class="g4kpi"><div class="kpibox"><div class="kl">Total saída (grupo)</div><div class="kv">'+Math.round(totalSaidaGrupo).toLocaleString('pt-BR')+'</div></div><div class="kpibox"><div class="kl">Total compra (grupo)</div><div class="kv gn">'+Math.round(totalCompraGrupo).toLocaleString('pt-BR')+'</div></div><div class="kpibox"><div class="kl">Investimento total (grupo)</div><div class="kv gd">'+fmtMoeda(totalCustoGrupo)+'</div></div><div class="kpibox"><div class="kl">Mês de maior desembolso</div><div class="kv rd">'+(meses[picoIdx]||'—')+'</div></div></div>';
+
+  function tabelaPorFazenda(farms, totalArr, totalGrupo, fmt){
+    var t='<div class="tblwrap"><table class="curve"><tr><th class="lbl">Fazenda</th>';
+    meses.forEach(function(m){t+='<th>'+m+'</th>';}); t+='<th style="background:var(--gld);color:#000">TOTAL</th></tr>';
+    farms.forEach(function(f){
+      var tot=f.data.reduce(function(a,b){return a+b;},0);
+      t+='<tr><td class="lbl">'+f.name+'</td>';
+      f.data.forEach(function(v){ t+='<td>'+fmt(v)+'</td>'; });
+      t+='<td style="background:#14200a;color:var(--gld);font-weight:700">'+fmt(tot)+'</td></tr>';
+    });
+    t+='<tr><td class="lbl" style="color:var(--gld)">TOTAL GRUPO</td>';
+    totalArr.forEach(function(v){ t+='<td style="color:var(--gld);font-weight:700">'+fmt(v)+'</td>'; });
+    t+='<td style="background:#14200a;color:var(--gld);font-weight:700">'+fmt(totalGrupo)+'</td></tr>';
+    t+='</table></div>';
+    return t;
+  }
+
+  th+='<div class="ct" style="margin-top:14px">📤 Saída consolidada — por fazenda <span style="font-size:9px;color:var(--txt3);font-weight:400;margin-left:6px">passe o mouse na barra pra ver o valor exato</span></div>';
+  th+=svgStackedBarChart(farmsSaida, meses, {ticks:8});
+  th+=tabelaPorFazenda(farmsSaida, saidaTot, totalSaidaGrupo, function(v){return Math.round(v);});
+
+  th+='<div class="ct" style="margin-top:14px">🛒 Compra consolidada — por fazenda</div>';
+  th+=svgStackedBarChart(farmsCompra, meses, {ticks:8});
+  th+=tabelaPorFazenda(farmsCompra, compraTot, totalCompraGrupo, function(v){return Math.round(v);});
+
+  th+='<div class="ct" style="margin-top:14px">💰 Necessidade de Caixa consolidada — por fazenda</div>';
+  th+=svgStackedBarChart(farmsCusto, meses, {ticks:8, fmtY:function(v){return fmtMoeda(v);}, fmtLabel:function(v){return v>0?fmtMoeda(v):'';}, fmtTip:function(v){return fmtMoeda(v);}});
+  th+=tabelaPorFazenda(farmsCusto, custoTot, totalCustoGrupo, function(v){return fmtMoeda(v);});
+  th+='</div>';
+
+  el('consolidado_totais').innerHTML=th;
+}
+
+// ---------- CONSOLIDADO: cálculo compartilhado (PDF + Excel) ----------
+function computeConsolidado(){
+  var planos=consolidadoState.planos;
+  var meses=buildGlobalMonths(planos);
+  var saidaTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.saidaDist,m);},0); });
+  var compraTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.compraDist,m);},0); });
+  var custoTot=meses.map(function(m){ return planos.reduce(function(s,p){return s+valorNoMesGlobal(p,p.custoPorMes,m);},0); });
+  var totalSaidaGrupo=saidaTot.reduce(function(a,b){return a+b;},0);
+  var totalCompraGrupo=compraTot.reduce(function(a,b){return a+b;},0);
+  var totalCustoGrupo=custoTot.reduce(function(a,b){return a+b;},0);
+  var picoIdx=0; custoTot.forEach(function(v,i){ if(v>custoTot[picoIdx]) picoIdx=i; });
+  var farmsSaida = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.saidaDist,m);})}; });
+  var farmsCompra = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.compraDist,m);})}; });
+  var farmsCusto = planos.map(function(p){ return {name:p.fazenda, data:meses.map(function(m){return valorNoMesGlobal(p,p.custoPorMes,m);})}; });
+  return {planos:planos, meses:meses, saidaTot:saidaTot, compraTot:compraTot, custoTot:custoTot,
+    totalSaidaGrupo:totalSaidaGrupo, totalCompraGrupo:totalCompraGrupo, totalCustoGrupo:totalCustoGrupo,
+    picoIdx:picoIdx, farmsSaida:farmsSaida, farmsCompra:farmsCompra, farmsCusto:farmsCusto};
+}
+
+// ---------- CONSOLIDADO: PDF do Grupo ----------
+function gerarPDFConsolidado(){
+  var c=computeConsolidado();
+  if(!c.planos.length){ alert('Importe pelo menos uma fazenda no consolidado antes de gerar o relatório.'); return; }
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});};
+  var cab=function(v){return Math.round(v||0).toLocaleString('pt-BR');};
+  var css='<style>@page{size:A4 landscape;margin:8mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#1e2b23;font-family:Arial,sans-serif;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{page-break-after:always;padding:4mm 5mm}.page:last-child{page-break-after:auto}.head{background:#173c2b;color:#fff;border-bottom:4px solid #c99a3b;border-radius:4mm;padding:5mm 6mm;display:flex;justify-content:space-between;align-items:flex-end;page-break-inside:avoid;break-inside:avoid}.brand{font-size:8pt;letter-spacing:1.6px;font-weight:900;opacity:.8}.farm{font-size:22pt;font-weight:900;margin-top:1mm}.meta{text-align:right;font-size:8pt;line-height:1.45}.title{font-size:14pt;color:#173c2b;margin:3mm 0 1.5mm;border-bottom:1px solid #d7ddd8;padding-bottom:1mm}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm;margin:2mm 0;page-break-inside:avoid;break-inside:avoid}.kpi{border:1px solid #d7ddd8;border-radius:3mm;background:#f7f7f5;padding:2mm 3mm}.kpi span{display:block;color:#6b756f;font-size:6.5pt;text-transform:uppercase;font-weight:900;letter-spacing:.4px}.kpi b{display:block;color:#173c2b;font-size:12pt;margin-top:1mm}.chart{border:1px solid #d7ddd8;border-radius:3mm;padding:2mm;background:#fff;page-break-inside:avoid;break-inside:avoid}.chart svg{max-height:76mm}.chart svg text{fill:#34463a}.chart svg line{stroke:#d7ddd8}table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:2mm;font-size:7.5pt}thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}th,td{border:1px solid #c8cfca;padding:1.5mm 1mm;text-align:center;overflow-wrap:anywhere}th{background:#173c2b;color:#fff;font-weight:900}td.lbl,th.lbl{text-align:left;background:#e8ece9;color:#173c2b;font-weight:900;width:34mm}tr.alt td:not(.lbl){background:#f7f7f5}tr.tot td{background:#14200a!important;color:#c99a3b;font-weight:900}.gold{color:#9a6b12;font-weight:900}.footer{margin-top:3mm;border-top:1px solid #d7ddd8;padding-top:1.5mm;color:#6b756f;font-size:7pt;display:flex;justify-content:space-between}@media print{button{display:none}}</style>';
+  function rodape(n,total){return '<div class="footer"><span>RURAL PASTAGEM · PAINEL DO GRUPO</span><span>Página '+n+' de '+total+'</span></div>';}
+  function tabela(farms,totalArr,totalGrupo,fmt){
+    var t='<table><thead><tr><th class="lbl">Fazenda</th>';
+    c.meses.forEach(function(m){t+='<th>'+m+'</th>';}); t+='<th>Total</th></tr></thead><tbody>';
+    farms.forEach(function(f,fi){
+      var tot=f.data.reduce(function(a,b){return a+b;},0);
+      t+='<tr'+(fi%2===1?' class="alt"':'')+'><td class="lbl">'+esc(f.name)+'</td>';
+      f.data.forEach(function(v){t+='<td>'+fmt(v)+'</td>';});
+      t+='<td class="gold">'+fmt(tot)+'</td></tr>';
+    });
+    t+='<tr class="tot"><td class="lbl">TOTAL GRUPO</td>';
+    totalArr.forEach(function(v){t+='<td>'+fmt(v)+'</td>';});
+    t+='<td>'+fmt(totalGrupo)+'</td></tr></tbody></table>';
+    return t;
+  }
+  function cabecalho(sub,extraMeta){return '<div class="head"><div><div class="brand">RURAL PASTAGEM · PAINEL DO GRUPO</div><div class="farm">'+sub+'</div></div><div class="meta">'+(c.meses[0]||'—')+' a '+(c.meses[c.meses.length-1]||'—')+'<br>Emitido '+new Date().toLocaleDateString('pt-BR')+(extraMeta?('<br>'+extraMeta):'')+'</div></div>';}
+  var totalPag=6;
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Painel do Grupo — Rural Pastagem</title>'+css+'<style>.chartpage .chart svg{max-height:95mm}.farmlist{font-size:6.5pt;color:#6b756f;margin:1mm 0 2mm;line-height:1.3}</style></head><body>';
+
+  // Página 1 — Saída: KPIs + gráfico
+  h+='<section class="page chartpage">'+cabecalho(c.planos.length+' fazenda'+(c.planos.length>1?'s':'')+' consolidada'+(c.planos.length>1?'s':'')+' · Saída de animais');
+  h+='<div class="farmlist">Fazendas: '+c.planos.map(function(p){return esc(p.fazenda);}).join(', ')+'</div>';
+  h+='<div class="kpis"><div class="kpi"><span>Total saída (grupo)</span><b>'+cab(c.totalSaidaGrupo)+' cab</b></div><div class="kpi"><span>Total compra (grupo)</span><b>'+cab(c.totalCompraGrupo)+' cab</b></div><div class="kpi"><span>Investimento total (grupo)</span><b>'+fmtMoeda(c.totalCustoGrupo)+'</b></div><div class="kpi"><span>Mês de maior desembolso</span><b>'+(c.meses[c.picoIdx]||'—')+'</b></div></div>';
+  h+='<h2 class="title">Saída consolidada — por fazenda (cab)</h2><div class="chart">'+svgStackedBarChart(c.farmsSaida,c.meses,{ticks:6})+'</div>';
+  h+=rodape(1,totalPag)+'</section>';
+
+  // Página 2 — Saída: tabela
+  h+='<section class="page">'+cabecalho('Saída de animais — tabela mensal por fazenda (cab)');
+  h+=tabela(c.farmsSaida,c.saidaTot,c.totalSaidaGrupo,cab)+rodape(2,totalPag)+'</section>';
+
+  // Página 3 — Compra: gráfico
+  h+='<section class="page chartpage">'+cabecalho('Compra de animais');
+  h+='<h2 class="title">Compra consolidada — por fazenda (cab)</h2><div class="chart">'+svgStackedBarChart(c.farmsCompra,c.meses,{ticks:6})+'</div>';
+  h+=rodape(3,totalPag)+'</section>';
+
+  // Página 4 — Compra: tabela
+  h+='<section class="page">'+cabecalho('Compra de animais — tabela mensal por fazenda (cab)');
+  h+=tabela(c.farmsCompra,c.compraTot,c.totalCompraGrupo,cab)+rodape(4,totalPag)+'</section>';
+
+  // Página 5 — Caixa: gráfico
+  h+='<section class="page chartpage">'+cabecalho('Necessidade de caixa');
+  h+='<h2 class="title">Necessidade de caixa — por fazenda (US$)</h2><div class="chart">'+svgStackedBarChart(c.farmsCusto,c.meses,{ticks:6,fmtY:function(v){return fmtMoeda(v);},fmtLabel:function(v){return v>0?fmtMoeda(v):'';},fmtTip:function(v){return fmtMoeda(v);}})+'</div>';
+  h+=rodape(5,totalPag)+'</section>';
+
+  // Página 6 — Caixa: tabela + nota
+  h+='<section class="page">'+cabecalho('Necessidade de caixa — tabela mensal por fazenda (US$)');
+  h+=tabela(c.farmsCusto,c.custoTot,c.totalCustoGrupo,function(v){return fmtMoeda(v);});
+  h+='<div class="note" style="page-break-inside:avoid;break-inside:avoid;margin-top:3mm;padding:2.5mm 3mm;background:#f2eee1;border-left:3px solid #c99a3b;border-radius:2mm;color:#5f685f">O maior desembolso do grupo está previsto para <b>'+(c.meses[c.picoIdx]||'—')+'</b>, no valor de '+fmtMoeda(c.custoTot[c.picoIdx]||0)+'. Revise este relatório após qualquer atualização de plano confirmado de uma fazenda.</div>';
+  h+=rodape(6,totalPag)+'</section></body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(h); w.document.close();
+  setTimeout(function(){w.print();},650);
+}
+
+// ---------- CONSOLIDADO: Excel do Grupo ----------
+function exportarExcelConsolidado(){
+  var c=computeConsolidado();
+  if(!c.planos.length){ alert('Importe pelo menos uma fazenda no consolidado antes de exportar.'); return; }
+  function aba(nome,farms,totalArr,totalGrupo,decimais){
+    var aoa=[[nome].concat(c.meses,['TOTAL'])];
+    farms.forEach(function(f){
+      var tot=f.data.reduce(function(a,b){return a+b;},0);
+      aoa.push([f.name].concat(f.data.map(function(v){return Math.round(v*Math.pow(10,decimais))/Math.pow(10,decimais);}),[Math.round(tot*Math.pow(10,decimais))/Math.pow(10,decimais)]));
+    });
+    aoa.push(['TOTAL GRUPO'].concat(totalArr.map(function(v){return Math.round(v*Math.pow(10,decimais))/Math.pow(10,decimais);}),[Math.round(totalGrupo*Math.pow(10,decimais))/Math.pow(10,decimais)]));
+    var ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols']=[{wch:22}].concat(c.meses.map(function(){return {wch:10};}),[{wch:12}]);
+    var range=XLSX.utils.decode_range(ws['!ref']);
+    for(var col=range.s.c; col<=range.e.c; col++){
+      var addr=XLSX.utils.encode_cell({r:0,c:col});
+      if(ws[addr]) ws[addr].s={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'173C2B'}}};
+    }
+    return ws;
+  }
+  var wb=XLSX.utils.book_new();
+  var resumoAoa=[
+    ['Painel do Grupo — Rural Pastagem'],
+    ['Emitido em', new Date().toLocaleDateString('pt-BR')],
+    ['Período', (c.meses[0]||'—')+' a '+(c.meses[c.meses.length-1]||'—')],
+    ['Fazendas consolidadas', c.planos.length],
+    [],
+    ['Indicador','Valor'],
+    ['Total saída (grupo, cab)', Math.round(c.totalSaidaGrupo)],
+    ['Total compra (grupo, cab)', Math.round(c.totalCompraGrupo)],
+    ['Investimento total (grupo, US$)', Math.round(c.totalCustoGrupo*100)/100],
+    ['Mês de maior desembolso', c.meses[c.picoIdx]||'—'],
+    [],
+    ['Fazenda','Saída (cab)','Compra (cab)','Investimento (US$)','Custo médio/cab (US$)']
+  ];
+  c.planos.forEach(function(p){
+    resumoAoa.push([p.fazenda, Math.round(p.totalSaida), Math.round(p.totalCompra), Math.round(p.totalCusto*100)/100, p.totalCompra>0?Math.round((p.totalCusto/p.totalCompra)*100)/100:0]);
+  });
+  var wsResumo=XLSX.utils.aoa_to_sheet(resumoAoa);
+  wsResumo['!cols']=[{wch:24},{wch:16},{wch:16},{wch:18},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+  XLSX.utils.book_append_sheet(wb, aba('Fazenda',c.farmsSaida,c.saidaTot,c.totalSaidaGrupo,0), 'Saída por Fazenda');
+  XLSX.utils.book_append_sheet(wb, aba('Fazenda',c.farmsCompra,c.compraTot,c.totalCompraGrupo,0), 'Compra por Fazenda');
+  XLSX.utils.book_append_sheet(wb, aba('Fazenda',c.farmsCusto,c.custoTot,c.totalCustoGrupo,2), 'Caixa por Fazenda');
+  var nomeArq='Painel_Grupo_Rural_Pastagem_'+new Date().toISOString().slice(0,10)+'.xlsx';
+  XLSX.writeFile(wb, nomeArq);
+}
+
+// ---------- CENSO (UA / cabeças por data) ----------
+function censoEmDia(sim,d){
+  var totalAnm=0, totalPeso=0;
+  sim.simNodes.forEach(function(n){
+    // animais importados (dEntry=0) sempre contam desde o censo inicial (d=0).
+    // já uma compra/manual que "nasce" exatamente no início de um mês (dEntry>0) não pode
+    // ser contada no censo de FIM do mês anterior, já que esse instante é compartilhado
+    // entre os dois meses (fim de um = início do outro). Por isso a entrada usa "<" estrito
+    // nesses casos, e só a saída (d<dExit) permanece com o limite original.
+    var entrouAte = (n.dEntry===0) ? (n.dEntry<=d) : (n.dEntry<d);
+    if(entrouAte && d<n.dExit){
+      totalAnm+=n.anm;
+      totalPeso+=n.anm*pesoEmDia(sim.mi,n.pvEntry,n.dEntry,d);
+    }
+  });
+  return {anm:totalAnm, peso:totalPeso};
+}
+// "Rebanho agora", só o que foi de fato importado (lotes reais) — nunca inclui compra/manual do mês 0,
+// mesmo que essa compra também "nasça" em dEntry=0. É o número que a pessoa vê primeiro (painel/hero e
+// Saldo do Rebanho); compras futuras aparecem nas próprias abas de Compra/Distribuição/Saldo, não aqui.
+function censoRealAgora(sim){
+  var totalAnm=0, totalPeso=0;
+  sim.simNodes.forEach(function(n){
+    if(n.tag==='importado' && n.dEntry<=0 && 0<n.dExit){
+      totalAnm+=n.anm;
+      totalPeso+=n.anm*pesoEmDia(sim.mi,n.pvEntry,n.dEntry,0);
+    }
+  });
+  return {anm:totalAnm, peso:totalPeso};
+}
+
+// ---------- RENDER TABELAS MENSAIS ----------
+function renderTabelaMensal(tableId, mesesLabels, valores, rowLabel){
+  var h='<tr><th class="lbl">'+rowLabel+'</th>';
+  mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';});
+  h+='<th style="background:var(--gld);color:#000">TOTAL</th></tr>';
+  h+='<tr><td class="lbl">'+state.fazenda+'</td>';
+  var total=0;
+  valores.forEach(function(v){ total+=v; h+='<td style="color:var(--txt);font-weight:700">'+Math.round(v)+'</td>'; });
+  h+='<td style="background:#f2eee1;color:#8a6212;font-weight:800">'+Math.round(total)+'</td></tr>';
+  el(tableId).innerHTML=h;
+  return total;
+}
+
+// ---------- DISTRIBUIÇÃO DE SAÍDA (simulador de escoamento em cascata) ----------
+function calcularDistribuicao(sim, saidaNatural){
+  var pool=0, disponivel=[], saidaDist=[], compraDist=[];
+  for(var i=0;i<12;i++){
+    var disp = pool + saidaNatural[i];
+    disponivel.push(disp);
+    var manualS = state.distribuicao.saida[i];
+    var dist = (manualS!=null) ? Math.max(0,Math.min(manualS, disp)) : disp;
+    saidaDist.push(dist);
+    pool = disp - dist;
+  }
+  var sobraFinal = pool;
+  // sugestão quando não há ajuste manual: usa a MESMA compra automática da aba "4 · Compra"
+  // (respeitando o método escolhido — lotação alvo ou relação de troca — e quaisquer exclusões
+  // feitas lá), pra "limpar ajustes manuais" voltar exatamente pro automático, sem outra conta.
+  var compraAutoPorMes=new Array(12).fill(0);
+  sim.displayCompra.forEach(function(c){
+    if(c.excluido) return;
+    if(c.periodoEntry!=null && c.periodoEntry>=0 && c.periodoEntry<12) compraAutoPorMes[c.periodoEntry]+=c.anm;
+  });
+  for(var i=0;i<12;i++){
+    var manualC = state.distribuicao.compra[i];
+    compraDist.push(manualC!=null ? manualC : compraAutoPorMes[i]);
+  }
+  return {disponivel:disponivel, saidaDist:saidaDist, compraDist:compraDist, sobraFinal:sobraFinal};
+}
+// Só aqui um número entra em state.distribuicao — ou seja, só vira "ajuste manual" quando o
+// usuário de fato mexe no campo. calc(true) evita reler os outros dist_saida_i/dist_compra_i
+// (que continuam mostrando o valor calculado da renderização anterior) como se fossem edição.
+function ajustarDistSaida(i,val){
+  state.distribuicao.saida[i] = val===''? null : parseFloat(val);
+  calc(true); salvarFazendaAtual();
+}
+function ajustarDistCompra(i,val){
+  state.distribuicao.compra[i] = val===''? null : parseFloat(val);
+  calc(true); salvarFazendaAtual();
+}
+function limparAjustesDistribuicao(){
+  customConfirm('Limpar todos os ajustes manuais e voltar para a saída e compra automáticas?', function(){
+    state.distribuicao={ saida:new Array(12).fill(null), compra:new Array(12).fill(null) };
+    calc(true); salvarFazendaAtual(); // skipRead: senão o calc() relê os inputs de dist_saida/compra que ainda mostram os valores antigos e desfaz a limpeza
+  });
+}
+function resetarDistribuicao(){ limparAjustesDistribuicao(); }
+function calcularUAHaDistribuido(sim, saidaDist, compraDist, censoInicial){
+  var cab=censoInicial.anm, peso=censoInicial.peso;
+  var uaHa=[];
+  for(var i=0;i<12;i++){
+    var per=sim.mi[i];
+    var gmd=efetivoGmd(per.month);
+    var ganho = cab*gmd*per.days; // aproximação: todo o estoque médio cresce à taxa de GMD do mês
+    var pesoMedioAtual = cab>0 ? peso/cab : state.pesoSaida;
+    var pesoPorCabecaSaindo = Math.max(state.pesoSaida, pesoMedioAtual); // represados saem mais pesados
+    var pesoSaindo = saidaDist[i]*pesoPorCabecaSaindo;
+    var pesoEntrando = compraDist[i]*state.pesoCompra;
+    peso = Math.max(0, peso+ganho-pesoSaindo+pesoEntrando);
+    cab = Math.max(0, cab - saidaDist[i] + compraDist[i]);
+    uaHa.push(state.area>0 ? (peso/state.uaKg)/state.area : 0);
+  }
+  return uaHa;
+}
+
+function calcularCensosDistribuidos(sim, saidaDist, compraDist, censoInicial){
+  var cab=censoInicial.anm, peso=censoInicial.peso;
+  var censos=[{anm:cab,peso:peso}];
+  for(var i=0;i<12;i++){
+    var per=sim.mi[i],gmd=efetivoGmd(per.month);
+    var ganho=cab*gmd*per.days;
+    var pesoMedioAtual=cab>0?peso/cab:state.pesoSaida;
+    var pesoPorCabecaSaindo=Math.max(state.pesoSaida,pesoMedioAtual);
+    var saida=Math.min(cab,Math.max(0,saidaDist[i]||0));
+    var compra=Math.max(0,compraDist[i]||0);
+    peso=Math.max(0,peso+ganho-saida*pesoPorCabecaSaindo+compra*state.pesoCompra);
+    cab=Math.max(0,cab-saida+compra);
+    censos.push({anm:cab,peso:peso});
+  }
+  return censos;
+}
+
+function renderDistribuicao(sim, mesesLabels, saidaNatural){
+  var d=calcularDistribuicao(sim, saidaNatural);
+  var totalSaida=0, totalCompra=0, totalNatural=0, picoIdx=0;
+  for(var i=0;i<12;i++){
+    totalSaida+=d.saidaDist[i]; totalCompra+=d.compraDist[i]; totalNatural+=saidaNatural[i];
+    if(d.saidaDist[i]>d.saidaDist[picoIdx]) picoIdx=i;
+  }
+
+  var h='<tr><th class="lbl">Mês</th>';
+  mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';});
+  h+='<th style="background:var(--gld);color:#000">TOTAL</th></tr>';
+  h+='<tr><td class="lbl">Saída automática (referência)</td>';
+  saidaNatural.forEach(function(v){h+='<td style="color:var(--txt3)">'+Math.round(v)+'</td>';});
+  h+='<td style="background:#f2eee1;color:#8a6212;font-weight:800">'+Math.round(totalNatural)+'</td>';
+  h+='</tr><tr><td class="lbl">Disponível pelo peso</td>';
+  d.disponivel.forEach(function(v){h+='<td style="color:var(--blu3)">'+Math.round(v)+'</td>';});
+  h+='<td title="Animais que atingiram o peso, mas ainda não foram programados para saída" style="background:#f2eee1;color:'+(d.sobraFinal>0.5?'#a34b31':'#245232')+';font-weight:800">'+Math.round(d.sobraFinal)+'<div style="font-size:9px;margin-top:2px">ainda falta sair</div></td>';
+  h+='</tr><tr><td class="lbl" style="color:var(--gld)">Saída distribuída (editável)</td>';
+  d.saidaDist.forEach(function(v,i){h+='<td><input type="number" step="1" id="dist_saida_'+i+'" value="'+Math.round(v)+'" style="color:var(--gld);font-weight:700" onchange="ajustarDistSaida('+i+',this.value)"></td>';});
+  h+='<td style="background:#f2eee1;color:#8a6212;font-weight:800">'+Math.round(totalSaida)+'</td>';
+  h+='</tr><tr><td class="lbl" style="color:var(--grn)">Entrada / Compra (editável, sugerida = compra automática)</td>';
+  d.compraDist.forEach(function(v,i){h+='<td><input type="number" step="1" id="dist_compra_'+i+'" value="'+Math.round(v)+'" style="color:var(--grn);font-weight:700" onchange="ajustarDistCompra('+i+',this.value)"></td>';});
+  h+='<td style="background:#f2eee1;color:#245232;font-weight:800">'+Math.round(totalCompra)+'</td>';
+  h+='</tr>';
+  el('tbl_distribuicao').innerHTML=h;
+
+  el('dist_total_saida').textContent=Math.round(totalSaida);
+  el('dist_total_compra').textContent=Math.round(totalCompra);
+  el('dist_sobra').textContent = d.sobraFinal>0.5 ? Math.round(d.sobraFinal)+' cab' : '0';
+  el('dist_pico').textContent = mesesLabels[picoIdx]+' ('+Math.round(d.saidaDist[picoIdx])+')';
+
+  var chartEl=el('chart_distribuicao');
+  if(chartEl){
+    var censoInicial=censoEmDia(sim,0);
+    var capArr = mesesLabels.map(function(lbl,i){ return efetivoCapacidade(sim.mi[i].month); });
+    var uaHaDist = calcularUAHaDistribuido(sim, d.saidaDist, d.compraDist, censoInicial);
+    drawCapacityChart('chart_distribuicao', mesesLabels, capArr, uaHaDist);
+  }
+}
+
+// ---------- PLANOS CONFIRMADOS (fotos congeladas da Distribuição) ----------
+function confirmarPlano(){
+  readFormIntoState();
+  var sim=buildSimulacao();
+  var mesesLabels=[];
+  for(var i=0;i<12;i++){ var p=sim.mi[i]; mesesLabels.push(MESES[p.month]+'/'+p.year.toString().slice(2)); }
+  var saidaPorMes=new Array(12).fill(0);
+  sim.simNodes.forEach(function(n){ if(!n.fora && n.periodoExit<12) saidaPorMes[n.periodoExit]+=n.anm; });
+  var d=calcularDistribuicao(sim, saidaPorMes);
+  var censoInicial=censoEmDia(sim,0);
+  var capArr = mesesLabels.map(function(lbl,i){ return efetivoCapacidade(sim.mi[i].month); });
+  var uaHaDist = calcularUAHaDistribuido(sim, d.saidaDist, d.compraDist, censoInicial);
+  var valorPadrao = state.valorCabPadraoUSD;
+  var custoPorMes = d.compraDist.map(function(v){ return v*valorPadrao; });
+  var totalSaida=d.saidaDist.reduce(function(a,b){return a+b;},0);
+  var totalCompra=d.compraDist.reduce(function(a,b){return a+b;},0);
+  var totalCusto=custoPorMes.reduce(function(a,b){return a+b;},0);
+
+  var hoje=new Date();
+  var nomeBase='Plano '+String(hoje.getDate()).padStart(2,'0')+String(hoje.getMonth()+1).padStart(2,'0');
+  var nome=nomeBase, count=1;
+  while(state.planosConfirmados.some(function(pl){return pl.nome===nome;})){ count++; nome=nomeBase+' ('+count+')'; }
+
+  var plano={
+    id:'plano_'+Date.now(), nome:nome, dataConfirmacao:hoje.toISOString(),
+    mesesLabels:mesesLabels.slice(), saidaDist:d.saidaDist.slice(), compraDist:d.compraDist.slice(),
+    custoPorMes:custoPorMes, capArr:capArr.slice(), uaHaDist:uaHaDist.slice(),
+    valorPorCab:valorPadrao, totalSaida:totalSaida, totalCompra:totalCompra, totalCusto:totalCusto,
+    fazenda:state.fazenda
+  };
+  state.planosConfirmados.push(plano);
+  state.planoSelecionadoId=plano.id;
+  salvarFazendaAtual();
+  var ind=el('confirmInd'); if(ind){ ind.textContent='✅ "'+nome+'" salvo'; setTimeout(function(){ind.textContent='';},3000); }
+  nav('planos');
+  renderPlanos();
+}
+function selecionarPlano(id){ state.planoSelecionadoId=id; salvarFazendaAtual(); renderPlanos(); }
+function compararComPlano(id){ state.planoComparacaoId = (state.planoComparacaoId===id)? null : id; salvarFazendaAtual(); renderPlanos(); }
+function renomearPlano(id,novoNome){
+  var pl=state.planosConfirmados.find(function(p){return p.id===id;});
+  if(pl) pl.nome=novoNome||pl.nome;
+  salvarFazendaAtual();
+}
+function excluirPlano(id){
+  customConfirm('Excluir este plano confirmado? Essa ação não pode ser desfeita.', function(){
+    state.planosConfirmados=state.planosConfirmados.filter(function(p){return p.id!==id;});
+    if(state.planoSelecionadoId===id) state.planoSelecionadoId = state.planosConfirmados.length? state.planosConfirmados[state.planosConfirmados.length-1].id : null;
+    if(state.planoComparacaoId===id) state.planoComparacaoId=null;
+    salvarFazendaAtual();
+    renderPlanos();
+  });
+}
+
+function renderPlanos(){
+  var wrap=el('planos_lista');
+  if(!state.planosConfirmados.length){
+    wrap.innerHTML=''; el('planos_empty').style.display='block'; el('planos_detalhe').innerHTML=''; return;
+  }
+  el('planos_empty').style.display='none';
+  var h='';
+  state.planosConfirmados.forEach(function(pl){
+    var ativo = pl.id===state.planoSelecionadoId;
+    var comp = pl.id===state.planoComparacaoId;
+    h+='<div style="display:flex;align-items:center;gap:4px">';
+    h+='<button class="msbtn'+(ativo?' on':'')+'" onclick="selecionarPlano(\''+pl.id+'\')" style="'+(comp?'border-color:var(--pur)':'')+'">'+pl.nome+'</button>';
+    h+='<button class="smbtn" onclick="compararComPlano(\''+pl.id+'\')" title="Comparar com o plano selecionado">'+(comp?'✕ comparar':'⇄ comparar')+'</button>';
+    h+='<button class="smbtn" onclick="excluirPlano(\''+pl.id+'\')">✕</button>';
+    h+='</div>';
+  });
+  wrap.innerHTML=h;
+
+  var principal = state.planosConfirmados.find(function(p){return p.id===state.planoSelecionadoId;}) || state.planosConfirmados[state.planosConfirmados.length-1];
+  if(!principal){ el('planos_detalhe').innerHTML=''; return; }
+  var comparar = state.planosConfirmados.find(function(p){return p.id===state.planoComparacaoId && p.id!==principal.id;});
+
+  if(comparar){
+    el('planos_detalhe').innerHTML =
+      '<div class="g2">'+
+        '<div>'+renderPlanoCard(principal)+'</div>'+
+        '<div>'+renderPlanoCard(comparar)+'</div>'+
+      '</div>';
+  } else {
+    el('planos_detalhe').innerHTML = renderPlanoCard(principal, true);
+  }
+}
+
+function renderFluxoCaixaVisual(pl){
+  var maxV = Math.max.apply(null, pl.custoPorMes) || 1;
+  var acumulado=0;
+  var picoIdx=0; pl.custoPorMes.forEach(function(v,i){ if(v>pl.custoPorMes[picoIdx]) picoIdx=i; });
+  var h='<div class="card" style="border-top:3px solid var(--gld)">';
+  h+='<div class="ct">💰 Fluxo de Caixa do Plano — "'+pl.nome+'"<span style="font-size:9px;color:var(--txt3);font-weight:400;margin-left:8px">pronto pra print / apresentação</span></div>';
+  h+='<div class="g3" style="margin-bottom:12px">';
+  h+='<div class="kpibox"><div class="kl">Investimento total no ano</div><div class="kv lg gd">'+fmtMoeda(pl.totalCusto)+'</div></div>';
+  h+='<div class="kpibox"><div class="kl">Mês de maior desembolso</div><div class="kv rd">'+pl.mesesLabels[picoIdx]+'</div><div class="kl" style="margin-top:2px">'+fmtMoeda(pl.custoPorMes[picoIdx])+'</div></div>';
+  h+='<div class="kpibox"><div class="kl">Custo médio / cabeça</div><div class="kv">'+fmtMoeda(pl.totalCompra>0?pl.totalCusto/pl.totalCompra:0)+'</div></div>';
+  h+='</div>';
+  pl.mesesLabels.forEach(function(m,i){
+    var v=pl.custoPorMes[i];
+    acumulado+=v;
+    var pct = maxV>0 ? Math.max(v>0?4:0,(v/maxV*100)) : 0;
+    h+='<div class="flr"><span class="fll">'+m+'</span><div class="flb"><div class="fli" style="width:'+pct+'%;background:linear-gradient(90deg,#173c2b,#376b45);color:#fff">'+(v>0?fmtMoeda(v):'')+'</div></div><span class="flv" style="color:var(--txt2)">acum. '+fmtMoeda(acumulado)+'</span></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function renderPlanoCard(pl, full){
+  var custoMedio = pl.totalCompra>0 ? pl.totalCusto/pl.totalCompra : 0;
+  var h='<div class="card">';
+  h+='<div class="ct">📌 <input type="text" value="'+pl.nome.replace(/"/g,'&quot;')+'" style="background:transparent;border:none;color:var(--gld);font-family:var(--mono);font-weight:700;font-size:12px" onchange="renomearPlano(\''+pl.id+'\',this.value)">';
+  h+='<span style="font-size:9px;color:var(--txt3);font-weight:400;margin-left:auto">confirmado em '+new Date(pl.dataConfirmacao).toLocaleString('pt-BR')+'</span></div>';
+  h+='<div class="g4kpi">';
+  h+='<div class="kpibox"><div class="kl">Total saída</div><div class="kv">'+Math.round(pl.totalSaida)+'</div></div>';
+  h+='<div class="kpibox"><div class="kl">Total compra</div><div class="kv gn">'+Math.round(pl.totalCompra)+'</div></div>';
+  h+='<div class="kpibox"><div class="kl">Investimento total</div><div class="kv gd">'+fmtMoeda(pl.totalCusto)+'</div></div>';
+  h+='<div class="kpibox"><div class="kl">Custo médio/cab</div><div class="kv">'+fmtMoeda(custoMedio)+'</div></div>';
+  h+='</div>';
+  h+='</div>';
+
+  if(full){ h += renderFluxoCaixaVisual(pl); }
+
+  h+='<div class="card">';
+  var t='<tr><th class="lbl">Mês</th>';
+  pl.mesesLabels.forEach(function(m){t+='<th>'+m+'</th>';});
+  t+='</tr><tr><td class="lbl">Saída (cab)</td>';
+  pl.saidaDist.forEach(function(v){t+='<td style="color:var(--gld)">'+Math.round(v)+'</td>';});
+  t+='</tr><tr><td class="lbl">Entrada/Compra (cab)</td>';
+  pl.compraDist.forEach(function(v){t+='<td style="color:var(--grn)">'+Math.round(v)+'</td>';});
+  t+='</tr><tr><td class="lbl">Necessidade de caixa</td>';
+  pl.custoPorMes.forEach(function(v){t+='<td>'+fmtMoeda(v)+'</td>';});
+  t+='</tr><tr><td class="lbl" style="color:var(--pur)">UA/ha projetado</td>';
+  pl.uaHaDist.forEach(function(v){t+='<td style="color:var(--pur)">'+fmtPtBR(v,2)+'</td>';});
+  t+='</tr>';
+  h+='<div class="tblwrap"><table class="curve">'+t+'</table></div>';
+
+  var chartId='chart_plano_'+pl.id;
+  if(full){
+    h+='<div id="'+chartId+'" style="margin-top:10px"></div>';
+  }
+
+  h+='<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  h+='<button class="hbtn hbp" onclick="gerarPDFPlano(\''+pl.id+'\')">📄 PDF do plano</button>';
+  h+='<button class="hbtn hbs" onclick="copiarDadosPlano(\''+pl.id+'\')">📋 Copiar dados p/ apresentação</button>';
+  h+='<button class="hbtn hbs" onclick="exportarDadosPlano(\''+pl.id+'\')">💾 Exportar dados (.json)</button>';
+  h+='</div>';
+  h+='</div>';
+
+  if(full){
+    setTimeout(function(){ drawCapacityChart(chartId, pl.mesesLabels, pl.capArr, pl.uaHaDist); },0);
+  }
+  return h;
+}
+
+function copiarDadosPlano(id){
+  var pl=state.planosConfirmados.find(function(p){return p.id===id;});
+  if(!pl) return;
+  var txt='PLANO CONFIRMADO: '+pl.nome+'\n';
+  txt+='Fazenda: '+pl.fazenda+'\n';
+  txt+='Confirmado em: '+new Date(pl.dataConfirmacao).toLocaleString('pt-BR')+'\n\n';
+  txt+='Mês\t'+pl.mesesLabels.join('\t')+'\n';
+  txt+='Saída (cab)\t'+pl.saidaDist.map(function(v){return Math.round(v);}).join('\t')+'\n';
+  txt+='Entrada/Compra (cab)\t'+pl.compraDist.map(function(v){return Math.round(v);}).join('\t')+'\n';
+  txt+='Necessidade de caixa (US$)\t'+pl.custoPorMes.map(function(v){return v.toFixed(2);}).join('\t')+'\n';
+  txt+='UA/ha projetado\t'+pl.uaHaDist.map(function(v){return v.toFixed(2);}).join('\t')+'\n\n';
+  txt+='Total saída: '+Math.round(pl.totalSaida)+' cab\n';
+  txt+='Total compra: '+Math.round(pl.totalCompra)+' cab\n';
+  txt+='Investimento total: '+fmtMoeda(pl.totalCusto)+'\n';
+  txt+='\n---\nCole isso numa conversa com o Claude e peça pra montar uma apresentação/relatório bonito com esses dados.';
+
+  function feedback(ok){ var ind=el('confirmInd'); if(ind){ ind.textContent = ok? '✅ Copiado! Cole numa conversa com o Claude.' : '⚠ Não consegui copiar automaticamente — selecione e copie manualmente.'; setTimeout(function(){ind.textContent='';},4000); } }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){feedback(true);}).catch(function(){feedback(false); window.prompt('Copie manualmente (Ctrl/Cmd+C):', txt);});
+  } else {
+    window.prompt('Copie manualmente (Ctrl/Cmd+C):', txt);
+  }
+}
+
+function exportarDadosPlano(id){
+  var pl=state.planosConfirmados.find(function(p){return p.id===id;});
+  if(!pl) return;
+  var payload={
+    tipo:'rural_pastagem_plano_confirmado', versao:1,
+    fazenda:pl.fazenda, nome:pl.nome, dataConfirmacao:pl.dataConfirmacao,
+    mesesLabels:pl.mesesLabels, saidaDist:pl.saidaDist, compraDist:pl.compraDist,
+    custoPorMes:pl.custoPorMes, capArr:pl.capArr, uaHaDist:pl.uaHaDist,
+    valorPorCab:pl.valorPorCab, totalSaida:pl.totalSaida, totalCompra:pl.totalCompra, totalCusto:pl.totalCusto
+  };
+  var blob=new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=(pl.fazenda+'_'+pl.nome).replace(/[^a-zA-Z0-9_-]+/g,'_')+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
+// ---------- SVG charts p/ relatório impresso (usam var(--x) => tema dark/light reage sem regerar nada) ----------
+var FARM_PALETTE=['#F5C518','#4A7EC7','#52a86a','#9a7ae0','#e0706f','#2dd4bf','#f59e0b','#ec4899','#60a5fa','#a3e635','#fb923c','#38bdf8'];
+function svgStackedBarChart(farms, labels, opts){
+  opts=opts||{};
+  var w=960,h=360,padL=58,padR=16,padT=16,padB=54;
+  var innerW=w-padL-padR, innerH=h-padT-padB;
+  var totals=labels.map(function(_,i){ return farms.reduce(function(s,f){return s+(f.data[i]||0);},0); });
+  var maxV=Math.max.apply(null,totals.concat([0]))*1.15 || 1;
+  var n=labels.length, slot=innerW/n, barW=slot*0.6;
+  function yPos(v){ return padT+innerH*(1-v/maxV); }
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto" font-family="Courier New, monospace">';
+  var ticks=opts.ticks||8;
+  for(var t=0;t<=ticks;t++){
+    var v=maxV*(t/ticks), yy=yPos(v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" style="stroke:var(--border)" stroke-width="0.5"/>';
+    svg+='<text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="8" style="fill:var(--txt3)" text-anchor="end">'+(opts.fmtY?opts.fmtY(v):Math.round(v))+'</text>';
+  }
+  labels.forEach(function(lbl,i){
+    var gx=padL+slot*i+(slot-barW)/2;
+    var yCursor=padT+innerH;
+    farms.forEach(function(f,fi){
+      var v=f.data[i]||0;
+      if(v<=0) return;
+      var segH=innerH*(v/maxV);
+      var segY=yCursor-segH;
+      var color=f.color||FARM_PALETTE[fi%FARM_PALETTE.length];
+      svg+='<rect x="'+gx.toFixed(1)+'" y="'+segY.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+Math.max(0,segH).toFixed(1)+'" fill="'+color+'" rx="1"><title>'+f.name+' — '+lbl+': '+(opts.fmtTip?opts.fmtTip(v):Math.round(v))+'</title></rect>';
+      yCursor=segY;
+    });
+    if(totals[i]>0) svg+='<text x="'+(gx+barW/2).toFixed(1)+'" y="'+(yPos(totals[i])-5).toFixed(1)+'" font-size="8" style="fill:var(--txt2)" text-anchor="middle">'+(opts.fmtLabel?opts.fmtLabel(totals[i]):Math.round(totals[i]))+'</text>';
+    svg+='<text x="'+(gx+barW/2).toFixed(1)+'" y="'+(h-14)+'" font-size="9" style="fill:var(--txt2)" text-anchor="middle">'+lbl+'</text>';
+  });
+  svg+='</svg>';
+  var legend='<div style="display:flex;gap:14px;flex-wrap:wrap;font-family:Courier New,monospace;font-size:10px;margin-top:6px;justify-content:center">';
+  farms.forEach(function(f,fi){
+    var color=f.color||FARM_PALETTE[fi%FARM_PALETTE.length];
+    legend+='<span><span style="display:inline-block;width:10px;height:10px;background:'+color+';border-radius:2px;margin-right:5px;vertical-align:middle"></span>'+f.name+'</span>';
+  });
+  legend+='</div>';
+  return svg+legend;
+}
+function svgChartBars(series, labels, opts){
+  opts=opts||{};
+  var w=960,h=340,padL=54,padR=16,padT=16,padB=44;
+  var innerW=w-padL-padR, innerH=h-padT-padB;
+  var allVals=[]; series.forEach(function(s){ allVals=allVals.concat(s.data); });
+  var maxV=Math.max.apply(null,allVals.concat([0]))*1.18 || 1;
+  var n=labels.length, groupW=innerW/n, barW=(groupW*0.62)/series.length;
+  function yPos(v){ return padT+innerH*(1-v/maxV); }
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto" font-family="Courier New, monospace">';
+  var ticks=4;
+  for(var t=0;t<=ticks;t++){
+    var v=maxV*(t/ticks), yy=yPos(v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" style="stroke:var(--border)" stroke-width="1"/>';
+    svg+='<text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="9" style="fill:var(--txt3)" text-anchor="end">'+(opts.fmtY?opts.fmtY(v):Math.round(v))+'</text>';
+  }
+  labels.forEach(function(lbl,i){
+    var gx=padL+groupW*i;
+    series.forEach(function(s,si){
+      var v=s.data[i];
+      var bx=gx+groupW*0.19+si*barW;
+      var by=yPos(v), bh=(padT+innerH)-by;
+      svg+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+(barW*0.86).toFixed(1)+'" height="'+Math.max(0,bh).toFixed(1)+'" style="fill:var(--'+s.varColor+')" rx="1.5"/>';
+      if(v>0) svg+='<text x="'+(bx+barW*0.43).toFixed(1)+'" y="'+(by-4).toFixed(1)+'" font-size="8" style="fill:var(--txt2)" text-anchor="middle">'+(opts.fmtLabel?opts.fmtLabel(v):Math.round(v))+'</text>';
+    });
+    svg+='<text x="'+(gx+groupW/2).toFixed(1)+'" y="'+(h-14)+'" font-size="9" style="fill:var(--txt2)" text-anchor="middle">'+lbl+'</text>';
+  });
+  svg+='</svg>';
+  var legend='<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:Courier New,monospace;font-size:10px;margin-top:6px;justify-content:center">';
+  series.forEach(function(s){ legend+='<span><span style="display:inline-block;width:10px;height:10px;background:var(--'+s.varColor+');border-radius:2px;margin-right:5px;vertical-align:middle"></span>'+s.name+'</span>'; });
+  legend+='</div>';
+  return svg+legend;
+}
+function svgChartLine2(seriesA, seriesB, labels){
+  var w=960,h=340,padL=48,padR=16,padT=16,padB=40;
+  var innerW=w-padL-padR, innerH=h-padT-padB;
+  var allVals=seriesA.concat(seriesB);
+  var maxV=Math.max.apply(null,allVals), minV=Math.min(0,Math.min.apply(null,allVals));
+  var span=(maxV-minV)||1; maxV+=span*0.12; minV=Math.max(0,minV-span*0.08);
+  function xPos(i){ return padL+innerW*(i/(labels.length-1)); }
+  function yPos(v){ return padT+innerH*(1-(v-minV)/((maxV-minV)||1)); }
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto" font-family="Courier New, monospace">';
+  var ticks=5;
+  for(var t=0;t<=ticks;t++){
+    var v=minV+(maxV-minV)*(t/ticks), yy=yPos(v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" style="stroke:var(--border)" stroke-width="1"/>';
+    svg+='<text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="9" style="fill:var(--txt3)" text-anchor="end">'+v.toFixed(1)+'</text>';
+  }
+  for(var i=0;i<labels.length-1;i++){
+    var diffAvg=((seriesB[i]-seriesA[i])+(seriesB[i+1]-seriesA[i+1]))/2;
+    var cls = diffAvg>0 ? 'zoneRisco' : 'zoneFolga';
+    var pts=[[xPos(i),yPos(seriesA[i])],[xPos(i+1),yPos(seriesA[i+1])],[xPos(i+1),yPos(seriesB[i+1])],[xPos(i),yPos(seriesB[i])]];
+    svg+='<polygon points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" class="'+cls+'"/>';
+  }
+  labels.forEach(function(lbl,i){ svg+='<text x="'+xPos(i)+'" y="'+(h-10)+'" font-size="9" style="fill:var(--txt2)" text-anchor="middle">'+lbl+'</text>'; });
+  function pathFor(arr){ var d=''; arr.forEach(function(v,i){ d+=(i===0?'M':'L')+xPos(i).toFixed(1)+','+yPos(v).toFixed(1)+' '; }); return d; }
+  svg+='<path d="'+pathFor(seriesA)+'" fill="none" style="stroke:var(--gold)" stroke-width="2.5"/>';
+  svg+='<path d="'+pathFor(seriesB)+'" fill="none" style="stroke:var(--blue2)" stroke-width="2.5"/>';
+  seriesA.forEach(function(v,i){ svg+='<circle cx="'+xPos(i).toFixed(1)+'" cy="'+yPos(v).toFixed(1)+'" r="2.8" style="fill:var(--gold)"/>'; });
+  seriesB.forEach(function(v,i){ svg+='<circle cx="'+xPos(i).toFixed(1)+'" cy="'+yPos(v).toFixed(1)+'" r="2.8" style="fill:var(--blue2)"/>'; });
+  svg+='</svg>';
+  var legend='<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:Courier New,monospace;font-size:10px;margin-top:6px;justify-content:center">'+
+    '<span><span style="display:inline-block;width:10px;height:10px;background:var(--gold);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Capacidade-alvo (UA/ha)</span>'+
+    '<span><span style="display:inline-block;width:10px;height:10px;background:var(--blue2);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Projetado (UA/ha)</span>'+
+    '</div>';
+  return svg+legend;
+}
+
+function gerarPDFPlano(id){
+  var pl=state.planosConfirmados.find(function(p){return p.id===id;});
+  if(!pl) return;
+  var custoMedio = pl.totalCompra>0 ? pl.totalCusto/pl.totalCompra : 0;
+
+  var saldoNet=0, saldoAcumulado=pl.mesesLabels.map(function(m,i){ saldoNet+=(pl.compraDist[i]-pl.saidaDist[i]); return saldoNet; });
+  var acc=0, caixaAcumulada=pl.custoPorMes.map(function(v){ acc+=v; return acc; });
+  var picoIdx=0; pl.custoPorMes.forEach(function(v,i){ if(v>pl.custoPorMes[picoIdx]) picoIdx=i; });
+
+  var css=''+
+  '*{box-sizing:border-box;margin:0;padding:0;font-family:Georgia,serif}'+
+  ':root{--bg:#ffffff;--bg2:#f5f7fa;--txt:#14202e;--txt2:#3d5878;--txt3:#7593b8;--gold:#B8860B;--green:#2e7d32;--blue:#1B3F7A;--blue2:#2B5BA8;--red:#c62828;--border:#d7dfe8;}'+
+  'body.dark{--bg:#080c14;--bg2:#0d1520;--txt:#d0d8e8;--txt2:#8aacce;--txt3:#5f7a99;--gold:#F5C518;--green:#52a86a;--blue:#1B3F7A;--blue2:#4A7EC7;--red:#e0706f;--border:#1a2a3a;}'+
+  'body{background:var(--bg);color:var(--txt);font-size:13px}'+
+  '.page{page-break-after:always;padding:36px 48px;min-height:95vh;position:relative}'+
+  '.page:last-child{page-break-after:auto}'+
+  '.eyebrow{font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;color:var(--txt3);font-weight:700}'+
+  'h1{font-family:Georgia,serif;font-size:26px;color:var(--txt);margin:4px 0 18px}'+
+  '.themebtns{position:fixed;top:14px;right:14px;z-index:50;font-family:"Courier New",monospace;font-size:11px}'+
+  '.themebtns button{border:1px solid var(--border);background:var(--bg2);color:var(--txt2);padding:5px 10px;border-radius:5px;cursor:pointer;margin-left:5px}'+
+  '.themebtns button.on{background:var(--blue);color:#fff;border-color:var(--blue2)}'+
+  '@media print{.themebtns{display:none}}'+
+  '.kpirow{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0}'+
+  '.kpi{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}'+
+  '.kpi .l{font-family:"Courier New",monospace;font-size:9px;letter-spacing:1px;color:var(--txt3);font-weight:700;margin-bottom:8px}'+
+  '.kpi .v{font-family:"Courier New",monospace;font-size:26px;font-weight:700}'+
+  '.kpi .u{font-size:11px;color:var(--txt2);font-style:italic;margin-top:6px}'+
+  'table{border-collapse:collapse;width:100%;font-family:"Courier New",monospace;font-size:10.5px;margin-top:8px}'+
+  'th,td{border:1px solid var(--border);padding:5px 4px;text-align:center}'+
+  'th{background:var(--blue);color:#fff;font-weight:700}'+
+  'td.lbl,th.lbl{text-align:left;background:var(--bg2);font-weight:700;color:var(--txt2)}'+
+  '.note{font-size:11.5px;color:var(--txt2);font-style:italic;margin-top:10px}'+
+  '.zoneRisco{fill:rgba(224,112,112,0.28)}.zoneFolga{fill:rgba(82,168,106,0.22)}'+
+  '.capa{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90vh;text-align:center}'+
+  '.capa .leaf{font-size:44px;margin-bottom:14px}'+
+  '.capa .brand{font-family:"Courier New",monospace;font-size:12px;letter-spacing:3px;color:var(--txt3);font-weight:700;margin-bottom:12px}'+
+  '.capa .fazenda{font-family:Georgia,serif;font-size:46px;font-weight:700;color:var(--txt);margin-bottom:14px}'+
+  '.capa .sub{font-family:"Courier New",monospace;font-size:15px;color:var(--gold);margin-bottom:8px}'+
+  '.capa .dates{font-family:"Courier New",monospace;font-size:11px;color:var(--txt3)}'+
+  '.footer{position:absolute;bottom:20px;left:48px;right:48px;display:flex;justify-content:space-between;font-family:"Courier New",monospace;font-size:9px;color:var(--txt3);border-top:1px solid var(--border);padding-top:8px}';
+
+  css=css.replace(/Georgia,serif/g,'Arial,sans-serif').replace(/#f5f7fa/gi,'#f7f7f5').replace(/#14202e/gi,'#1e2b23').replace(/#3d5878/gi,'#34463a').replace(/#7593b8/gi,'#6b756f').replace(/#B8860B/gi,'#c99a3b').replace(/#2e7d32/gi,'#376b45').replace(/#1B3F7A/gi,'#173c2b').replace(/#2B5BA8/gi,'#244b35').replace(/#d7dfe8/gi,'#d7ddd8')+'.themebtns{display:none!important}@page{size:A4 landscape;margin:8mm}';
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+pl.nome+' — '+pl.fazenda+'</title><style>'+css+'</style></head><body class="">';
+
+  h+='<div class="themebtns"><button id="btnDark" onclick="setTema(\'dark\')">🌙 Escuro</button><button id="btnLight" class="on" onclick="setTema(\'light\')">☀️ Claro</button></div>';
+
+  // PÁGINA 1 — CAPA
+  h+='<div class="page"><div class="capa">'+
+     '<div class="leaf">🌱</div>'+
+     '<div class="brand">RURAL PASTAGEM</div>'+
+     '<div class="fazenda">Fazenda '+pl.fazenda+'</div>'+
+     '<div class="sub">Planejamento de Saída, Compra e Fluxo de Caixa</div>'+
+     '<div class="dates">Ciclo '+pl.mesesLabels[0]+' – '+pl.mesesLabels[pl.mesesLabels.length-1]+'   ·   Confirmado em '+new Date(pl.dataConfirmacao).toLocaleDateString('pt-BR')+'</div>'+
+     '</div><div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO DE SAÍDA E COMPRA</span><span>'+pl.nome+'</span></div></div>';
+
+  // PÁGINA 2 — RESUMO
+  h+='<div class="page"><div class="eyebrow">RESUMO DO PLANO</div><h1>O que este cenário significa em números</h1>'+
+     '<div class="kpirow">'+
+       '<div class="kpi"><div class="l">TOTAL DE SAÍDA</div><div class="v" style="color:var(--gold)">'+Math.round(pl.totalSaida).toLocaleString('pt-BR')+'</div><div class="u">cabeças no ano</div></div>'+
+       '<div class="kpi"><div class="l">TOTAL DE COMPRA</div><div class="v" style="color:var(--green)">'+Math.round(pl.totalCompra).toLocaleString('pt-BR')+'</div><div class="u">cabeças repostas</div></div>'+
+       '<div class="kpi"><div class="l">INVESTIMENTO TOTAL</div><div class="v" style="color:var(--blue2)">'+fmtMoeda(pl.totalCusto)+'</div><div class="u">em reposição</div></div>'+
+       '<div class="kpi"><div class="l">CUSTO MÉDIO/CABEÇA</div><div class="v">'+fmtMoeda(custoMedio)+'</div><div class="u">preço médio pago</div></div>'+
+     '</div>'+
+     '<p class="note">Pico de desembolso em '+pl.mesesLabels[picoIdx]+' — recomenda-se garantir linha de caixa disponível para esse período antes de assumir os compromissos de reposição.</p>'+
+     '<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO DE SAÍDA E COMPRA</span><span>'+pl.nome+'</span></div></div>';
+
+  // PÁGINA 3 — CRONOGRAMA
+  h+='<div class="page"><div class="eyebrow">CRONOGRAMA</div><h1>Saída e Entrada (Compra) mês a mês</h1>';
+  h+=svgChartBars(
+    [ {name:'Saída (cab)', data:pl.saidaDist, varColor:'gold'}, {name:'Entrada / Compra (cab)', data:pl.compraDist, varColor:'green'} ],
+    pl.mesesLabels
+  );
+  h+='<table><tr><th class="lbl">Mês</th>'; pl.mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';}); h+='</tr>';
+  h+='<tr><td class="lbl">Saída (cab)</td>'; pl.saidaDist.forEach(function(v){h+='<td>'+Math.round(v)+'</td>';}); h+='</tr>';
+  h+='<tr><td class="lbl">Compra (cab)</td>'; pl.compraDist.forEach(function(v){h+='<td>'+Math.round(v)+'</td>';}); h+='</tr>';
+  h+='<tr><td class="lbl">Saldo acum. rebanho</td>'; saldoAcumulado.forEach(function(v){h+='<td>'+(v>=0?'+':'')+Math.round(v)+'</td>';}); h+='</tr></table>';
+  h+='<p class="note">Saldo acumulado = variação líquida no tamanho do rebanho (compra − saída) desde o início do ciclo.</p>';
+  h+='<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO DE SAÍDA E COMPRA</span><span>'+pl.nome+'</span></div></div>';
+
+  // PÁGINA 4 — FINANCEIRO
+  h+='<div class="page"><div class="eyebrow">FINANCEIRO</div><h1>Necessidade de Caixa — mês a mês</h1>';
+  h+=svgChartBars(
+    [ {name:'Desembolso do mês (US$)', data:pl.custoPorMes, varColor:'blue2'} ],
+    pl.mesesLabels, { fmtY:function(v){return fmtMoeda(v);}, fmtLabel:function(v){return v>0?fmtMoeda(v):'';} }
+  );
+  h+='<table><tr><th class="lbl">Mês</th>'; pl.mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';}); h+='</tr>';
+  h+='<tr><td class="lbl">Desembolso (US$)</td>'; pl.custoPorMes.forEach(function(v){h+='<td>'+(v>0?fmtMoeda(v):'—')+'</td>';}); h+='</tr>';
+  h+='<tr><td class="lbl">Acumulado (US$)</td>'; caixaAcumulada.forEach(function(v){h+='<td>'+fmtMoeda(v)+'</td>';}); h+='</tr></table>';
+  h+='<p class="note" style="color:var(--gold);font-weight:700;font-style:normal">Investimento total no ano: '+fmtMoeda(pl.totalCusto)+'   ·   Pico mensal: '+fmtMoeda(pl.custoPorMes[picoIdx])+' ('+pl.mesesLabels[picoIdx]+')</p>';
+  h+='<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO DE SAÍDA E COMPRA</span><span>'+pl.nome+'</span></div></div>';
+
+  // PÁGINA 5 — LOTAÇÃO
+  h+='<div class="page"><div class="eyebrow">LOTAÇÃO</div><h1>UA/ha Projetado ao longo do ciclo</h1>';
+  h+=svgChartLine2(pl.capArr, pl.uaHaDist, pl.mesesLabels);
+  h+='<p class="note">Lotação projetada (verde) comparada à capacidade-alvo da fazenda (dourado). Zona avermelhada = risco de degradação do pasto; zona esverdeada = folga de capacidade.</p>';
+  h+='<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO DE SAÍDA E COMPRA</span><span>'+pl.nome+'</span></div></div>';
+
+  h+='<script>function setTema(t){document.body.className=(t==="dark"?"dark":"");document.getElementById("btnDark").classList.toggle("on",t==="dark");document.getElementById("btnLight").classList.toggle("on",t==="light");}<\/script>';
+  h+='</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(h); w.document.close();
+  setTimeout(function(){w.print();},650);
+}
+
+
+// ---------- GRÁFICO DE CAPACIDADE (SVG simples, sem lib externa) ----------
+function drawLineChartSVG(containerId, labels, series){
+  var w=800,h=280,padL=42,padR=14,padT=14,padB=34;
+  var innerW=w-padL-padR, innerH=h-padT-padB;
+  var allVals=[]; series.forEach(function(s){ allVals=allVals.concat(s.data); });
+  var maxV=Math.max.apply(null,allVals), minV=Math.min.apply(null,allVals);
+  var span=(maxV-minV)||1;
+  maxV+=span*0.15; minV=Math.max(0,minV-span*0.15);
+  function xPos(i){ return padL + innerW*(i/(labels.length-1)); }
+  function yPos(v){ return padT + innerH*(1-(v-minV)/((maxV-minV)||1)); }
+
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;background:var(--bg3);border-radius:8px" font-family="Courier New, monospace">';
+  // gridlines horizontais
+  var ticks=5;
+  for(var t=0;t<=ticks;t++){
+    var v=minV+(maxV-minV)*(t/ticks);
+    var yy=yPos(v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" stroke="#d7ddd8" stroke-width="1"/>';
+    svg+='<text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="9" fill="#6b756f" text-anchor="end">'+v.toFixed(1)+'</text>';
+  }
+  // labels eixo x
+  labels.forEach(function(lbl,i){
+    if(i%1===0){ svg+='<text x="'+xPos(i)+'" y="'+(h-10)+'" font-size="9" fill="#7593b8" text-anchor="middle">'+lbl.split('/')[0]+'</text>'; }
+  });
+  // séries
+  series.forEach(function(s){
+    var d='';
+    s.data.forEach(function(v,i){ d+= (i===0?'M':'L')+xPos(i).toFixed(1)+','+yPos(v).toFixed(1)+' '; });
+    svg+='<path d="'+d+'" fill="none" stroke="'+s.color+'" stroke-width="2.5"/>';
+    s.data.forEach(function(v,i){ svg+='<circle cx="'+xPos(i).toFixed(1)+'" cy="'+yPos(v).toFixed(1)+'" r="2.5" fill="'+s.color+'"/>'; });
+  });
+  svg+='</svg>';
+
+  var legend='<div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-family:var(--mono);font-size:11px">';
+  series.forEach(function(s){
+    legend+='<span><span style="display:inline-block;width:10px;height:10px;background:'+s.color+';border-radius:2px;margin-right:5px;vertical-align:middle"></span>'+s.name+'</span>';
+  });
+  legend+='</div>';
+
+  el(containerId).innerHTML=svg+legend;
+}
+
+function drawCapacityChart(containerId, labels, capArr, projArr){
+  var w=800,h=300,padL=42,padR=14,padT=14,padB=34;
+  var innerW=w-padL-padR, innerH=h-padT-padB;
+  var benchmarks=[1.0,1.2,1.5,3.0];
+  var allVals=capArr.concat(projArr).concat(benchmarks);
+  var maxV=Math.max.apply(null,allVals), minV=Math.min(0,Math.min.apply(null,allVals));
+  var span=(maxV-minV)||1;
+  maxV+=span*0.12; minV=Math.max(0,minV-span*0.08);
+  function xPos(i){ return padL + innerW*(i/(labels.length-1)); }
+  function yPos(v){ return padT + innerH*(1-(v-minV)/((maxV-minV)||1)); }
+
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;background:var(--bg3);border-radius:8px" font-family="Courier New, monospace">';
+
+  // gridlines horizontais
+  var ticks=5;
+  for(var t=0;t<=ticks;t++){
+    var v=minV+(maxV-minV)*(t/ticks);
+    var yy=yPos(v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" stroke="#1a2a3a" stroke-width="1"/>';
+    svg+='<text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="9" fill="#7593b8" text-anchor="end">'+v.toFixed(1)+'</text>';
+  }
+  // faixas de referência de mercado (linhas tracejadas)
+  var bench=[{v:1.1,lbl:'Média BR ~1,0-1,2'},{v:2.2,lbl:'Intensivo ~1,5-3,0'}];
+  bench.forEach(function(b){
+    var yy=yPos(b.v);
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(w-padR)+'" y2="'+yy+'" stroke="#5a5a3a" stroke-width="1" stroke-dasharray="4,3"/>';
+    svg+='<text x="'+(w-padR-4)+'" y="'+(yy-3)+'" font-size="8" fill="#8a8a5a" text-anchor="end">'+b.lbl+'</text>';
+  });
+
+  // zonas sombreadas (risco de degradação vs folga) entre as duas curvas
+  for(var i=0;i<labels.length-1;i++){
+    var diffAvg=((projArr[i]-capArr[i])+(projArr[i+1]-capArr[i+1]))/2;
+    var fill = diffAvg>0 ? 'rgba(224,112,112,0.28)' : 'rgba(82,168,106,0.22)';
+    var pts=[[xPos(i),yPos(capArr[i])],[xPos(i+1),yPos(capArr[i+1])],[xPos(i+1),yPos(projArr[i+1])],[xPos(i),yPos(projArr[i])]];
+    svg+='<polygon points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="'+fill+'"/>';
+  }
+
+  // labels eixo x
+  labels.forEach(function(lbl,i){ svg+='<text x="'+xPos(i)+'" y="'+(h-10)+'" font-size="9" fill="#6b756f" text-anchor="middle">'+lbl.split('/')[0]+'</text>'; });
+
+  // linhas principais
+  function pathFor(arr){ var d=''; arr.forEach(function(v,i){ d+=(i===0?'M':'L')+xPos(i).toFixed(1)+','+yPos(v).toFixed(1)+' '; }); return d; }
+  svg+='<path d="'+pathFor(capArr)+'" fill="none" stroke="#c99a3b" stroke-width="2.5"/>';
+  svg+='<path d="'+pathFor(projArr)+'" fill="none" stroke="#376b45" stroke-width="2.5"/>';
+  capArr.forEach(function(v,i){ svg+='<circle cx="'+xPos(i).toFixed(1)+'" cy="'+yPos(v).toFixed(1)+'" r="2.5" fill="#c99a3b"/>'; });
+  projArr.forEach(function(v,i){ svg+='<circle cx="'+xPos(i).toFixed(1)+'" cy="'+yPos(v).toFixed(1)+'" r="2.5" fill="#376b45"/>'; });
+
+  svg+='</svg>';
+
+  var legend='<div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-family:var(--mono);font-size:11px">';
+  legend+='<span><span style="display:inline-block;width:10px;height:10px;background:#c99a3b;border-radius:2px;margin-right:5px;vertical-align:middle"></span>Capacidade-alvo (UA/ha)</span>';
+  legend+='<span><span style="display:inline-block;width:10px;height:10px;background:#376b45;border-radius:2px;margin-right:5px;vertical-align:middle"></span>Projetado pela simulação</span>';
+  legend+='<span><span style="display:inline-block;width:10px;height:10px;background:rgba(224,112,112,0.6);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Risco de degradação</span>';
+  legend+='<span><span style="display:inline-block;width:10px;height:10px;background:rgba(82,168,106,0.6);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Folga de pasto</span>';
+  legend+='</div>';
+
+  el(containerId).innerHTML=svg+legend;
+}
+
+function renderGraficoCapacidade(sim, mesesLabels, projetadoUAHa){
+  var capArr = mesesLabels.map(function(lbl,i){ return efetivoCapacidade(sim.mi[i].month); });
+  renderCurveTable('tbl_cap_base', capacidadeBaseArr(), state.capacidadeAjuste, 'cap_adj');
+  renderSeasonControls('cap_adj','cap_seasons');
+  drawCapacityChart('chart_capacidade', mesesLabels, capArr, projetadoUAHa);
+
+  var h='<tr><th class="lbl">Mês</th>';
+  mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';});
+  h+='</tr><tr><td class="lbl" style="color:var(--gld)">Capacidade-alvo (UA/ha)</td>';
+  capArr.forEach(function(v){h+='<td style="color:var(--gld)">'+fmtPtBR(v,2)+'</td>';});
+  h+='</tr><tr><td class="lbl" style="color:var(--blu3)">Projetado (UA/ha)</td>';
+  projetadoUAHa.forEach(function(v){h+='<td style="color:var(--blu3)">'+fmtPtBR(v,2)+'</td>';});
+  h+='</tr><tr><td class="lbl">Diferença (projetado − alvo)</td>';
+  capArr.forEach(function(c,i){
+    var diff=projetadoUAHa[i]-c;
+    var color = diff>0.15 ? 'var(--red)' : (diff<-0.15 ? 'var(--txt3)' : 'var(--grn)');
+    h+='<td style="color:'+color+'">'+(diff>=0?'+':'')+fmtPtBR(diff,2)+'</td>';
+  });
+  h+='</tr>';
+  el('tbl_cap_comparacao').innerHTML=h;
+}
+
+
+function renderFinanceiro(sim, mesesLabels, saidaPorMes){
+  var d=calcularDistribuicao(sim, saidaPorMes);
+  var custoPorMes = d.compraDist.map(function(v){ return v*state.valorCabPadraoUSD; });
+  var totalAno=custoPorMes.reduce(function(a,b){return a+b;},0);
+  var totalCab=d.compraDist.reduce(function(a,b){return a+b;},0);
+
+  var pp=el('fin_preco_padrao'); if(pp) pp.textContent = fmtMoeda(state.valorCabPadraoUSD)+'/cab';
+
+  var wrap=el('tbl_fin_lotes');
+  if(totalCab<=0){
+    wrap.innerHTML=''; el('fin_empty').style.display='block';
+  } else {
+    el('fin_empty').style.display='none';
+    var h='<tr><th class="lbl">Mês</th>';
+    mesesLabels.forEach(function(m){h+='<th>'+m+'</th>';});
+    h+='<th style="background:var(--gld);color:#000">TOTAL</th></tr>';
+    h+='<tr><td class="lbl" style="color:var(--grn)">Cabeças compradas (decidido)</td>';
+    d.compraDist.forEach(function(v){h+='<td style="color:var(--grn);font-weight:700">'+Math.round(v)+'</td>';});
+    h+='<td style="background:#f2eee1;color:#245232;font-weight:800">'+Math.round(totalCab)+'</td></tr>';
+    h+='<tr><td class="lbl">Custo (US$)</td>';
+    custoPorMes.forEach(function(v){h+='<td style="color:var(--txt);font-weight:700">'+fmtMoeda(v)+'</td>';});
+    h+='<td style="background:#f2eee1;color:#8a6212;font-weight:800">'+fmtMoeda(totalAno)+'</td></tr>';
+    wrap.innerHTML=h;
+  }
+
+  var hCx='<tr><th class="lbl">Mês</th>';
+  mesesLabels.forEach(function(m){hCx+='<th>'+m+'</th>';});
+  hCx+='<th style="background:var(--gld);color:#000">TOTAL</th></tr>';
+  hCx+='<tr><td class="lbl">Necessidade de caixa</td>';
+  custoPorMes.forEach(function(v){hCx+='<td style="color:var(--txt);font-weight:700">'+fmtMoeda(v)+'</td>';});
+  hCx+='<td style="background:#f2eee1;color:#8a6212;font-weight:800">'+fmtMoeda(totalAno)+'</td></tr>';
+  hCx+='<tr><td class="lbl">Acumulado no ano</td>';
+  var acc=0;
+  custoPorMes.forEach(function(v){acc+=v; hCx+='<td style="color:var(--txt3)">'+fmtMoeda(acc)+'</td>';});
+  hCx+='<td></td></tr>';
+  el('tbl_fin_caixa').innerHTML=hCx;
+
+  el('fin_total').textContent=fmtMoeda(totalAno);
+  el('fin_cab').textContent=Math.round(totalCab);
+  el('fin_media').textContent= totalCab>0 ? fmtMoeda(totalAno/totalCab) : '—';
+  var maxIdx=0; for(var i=1;i<12;i++){ if(custoPorMes[i]>custoPorMes[maxIdx]) maxIdx=i; }
+  el('fin_pico').textContent = custoPorMes[maxIdx]>0 ? (mesesLabels[maxIdx]+' ('+fmtMoeda(custoPorMes[maxIdx])+')') : '—';
+}
+
+function calc(skipRead){
+  if(!skipRead) readFormIntoState();
+  updateCenarioBtns();
+  renderCurveTable('tbl_gmd_base', GMD_BASE, state.gmdAjuste, 'gmd_adj');
+  renderSeasonControls('gmd_adj','gmd_seasons');
+  renderCurveTable('tbl_troca_base', TROCA_BASE, state.trocaAjuste, 'troca_adj');
+  renderSeasonControls('troca_adj','troca_seasons');
+
+  var sim=buildSimulacao();
+  renderLotes(sim);
+
+  var mesesLabels=[];
+  for(var i=0;i<12;i++){ var p=sim.mi[i]; mesesLabels.push(MESES[p.month]+'/'+p.year.toString().slice(2)); }
+
+  var saidaPorMes=new Array(12).fill(0), compraPorMes=new Array(12).fill(0);
+  sim.simNodes.forEach(function(n){
+    if(!n.fora && n.periodoExit<12) saidaPorMes[n.periodoExit]+=n.anm;
+    if((n.tag==='compra'||n.tag==='manual') && n.periodoEntry<12) compraPorMes[n.periodoEntry]+=n.anm;
+  });
+  renderDistribuicao(sim, mesesLabels, saidaPorMes);
+  renderCompraAba(sim, mesesLabels);
+  renderFinanceiro(sim, mesesLabels, saidaPorMes);
+
+  // censo em 13 fronteiras (inicio de cada mes + fim do 12o)
+  var boundaries=[0];
+  for(var i=0;i<12;i++) boundaries.push(sim.mi[i].end);
+  var saldoSaidaPorMes=saidaPorMes.slice(),saldoCompraPorMes=compraPorMes.slice();
+  var censos=boundaries.map(function(d){ return censoEmDia(sim,d); });
+  if(state.saldoModo==='manual'){
+    var distSaldo=calcularDistribuicao(sim,saidaPorMes);
+    saldoSaidaPorMes=distSaldo.saidaDist.slice();
+    saldoCompraPorMes=distSaldo.compraDist.slice();
+    censos=calcularCensosDistribuidos(sim,saldoSaidaPorMes,saldoCompraPorMes,censoEmDia(sim,0));
+  }
+  var totalSaidaSaldo=saldoSaidaPorMes.reduce(function(a,b){return a+b;},0);
+  var totalCompraSaldo=saldoCompraPorMes.reduce(function(a,b){return a+b;},0);
+
+  var estoqueMedioAnm=[], estoqueMedioUA=[], pesoVivoMedio=[], pesoMedioInd=[], kgProduzido=[];
+  for(var i=0;i<12;i++){
+    var anmMedio=(censos[i].anm+censos[i+1].anm)/2;
+    var pesoMedio=(censos[i].peso+censos[i+1].peso)/2;
+    estoqueMedioAnm.push(anmMedio);
+    estoqueMedioUA.push(pesoMedio/state.uaKg);
+    pesoVivoMedio.push(pesoMedio);
+    pesoMedioInd.push(anmMedio>0 ? pesoMedio/anmMedio : 0);
+    kgProduzido.push(anmMedio*efetivoGmd(sim.mi[i].month)*sim.mi[i].days);
+  }
+
+  var hSaldo='<tr><th class="lbl">Rebanho</th>';
+  mesesLabels.forEach(function(m){hSaldo+='<th>'+m+'</th>';});
+  hSaldo+='</tr>';
+  hSaldo+='<tr><td class="lbl">Saída (cab)</td>';
+  saldoSaidaPorMes.forEach(function(v){hSaldo+='<td style="color:var(--red)">-'+Math.round(v)+'</td>';});
+  hSaldo+='</tr><tr><td class="lbl">Compra (cab)</td>';
+  saldoCompraPorMes.forEach(function(v){hSaldo+='<td style="color:var(--grn)">+'+Math.round(v)+'</td>';});
+  hSaldo+='</tr><tr><td class="lbl" style="color:var(--gld)">Estoque final (cab)</td>';
+  for(var i=1;i<=12;i++){ hSaldo+='<td style="color:#8a6212;font-weight:800;background:#f2eee1">'+Math.round(censos[i].anm)+'</td>'; }
+  hSaldo+='</tr><tr><td class="lbl">Estoque médio (cab)</td>';
+  estoqueMedioAnm.forEach(function(v){hSaldo+='<td>'+Math.round(v)+'</td>';});
+  hSaldo+='</tr><tr><td class="lbl" style="color:var(--pur)">Estoque médio (UA)</td>';
+  estoqueMedioUA.forEach(function(v){hSaldo+='<td style="color:var(--pur);font-weight:700">'+fmtPtBR(v,1)+'</td>';});
+  hSaldo+='</tr>';
+  if(state.area>0){
+    hSaldo+='<tr><td class="lbl" style="color:var(--pur)">UA/ha (médio no mês)</td>';
+    estoqueMedioUA.forEach(function(v){hSaldo+='<td style="color:var(--pur)">'+fmtPtBR(v/state.area,2)+'</td>';});
+    hSaldo+='</tr>';
+    hSaldo+='<tr><td class="lbl">Cab/ha (médio no mês)</td>';
+    estoqueMedioAnm.forEach(function(v){hSaldo+='<td>'+fmtPtBR(v/state.area,2)+'</td>';});
+    hSaldo+='</tr>';
+  }
+  hSaldo+='<tr><td class="lbl">Peso vivo total (kg)</td>';
+  pesoVivoMedio.forEach(function(v){hSaldo+='<td>'+fmtPtBR(Math.round(v),0)+'</td>';});
+  hSaldo+='</tr><tr><td class="lbl">Peso médio do rebanho (kg/cab)</td>';
+  pesoMedioInd.forEach(function(v){hSaldo+='<td>'+fmtPtBR(Math.round(v),0)+'</td>';});
+  hSaldo+='</tr><tr><td class="lbl" style="color:var(--grn)">Kg produzidos no mês</td>';
+  kgProduzido.forEach(function(v){hSaldo+='<td style="color:var(--grn)">'+fmtPtBR(Math.round(v),0)+'</td>';});
+  hSaldo+='</tr>';
+  el('tbl_saldo').innerHTML=hSaldo;
+
+  var censoReal=censoRealAgora(sim);
+  el('sd_atual').textContent=Math.round(censoReal.anm);
+  el('sd_atual_ua').textContent=fmtPtBR(censoReal.peso/state.uaKg,1);
+  el('sd_atual_uaha').textContent = state.area>0 ? fmtPtBR(censoReal.peso/state.uaKg/state.area,2) : '—';
+  el('sd_sai').textContent=Math.round(totalSaidaSaldo);
+  el('sd_compra').textContent=Math.round(totalCompraSaldo);
+  el('sd_final').textContent=Math.round(censos[12].anm);
+  el('sd_final_uaha').textContent = state.area>0 ? fmtPtBR(censos[12].peso/state.uaKg/state.area,2) : '—';
+
+  el('fazendaNome').textContent=state.fazenda;
+  var nomeCenario=state.saldoModo==='manual'?'ajustado manualmente':(state.saldoModo==='sem'?'sem compra':'automático com compra');
+  el('fazendaSub').textContent='Área útil: '+state.area+' ha · Saída: '+state.pesoSaida+'kg · Compra: '+state.pesoCompra+'kg · Pesagem: '+formatDateBR(state.data)+' · Cenário: '+nomeCenario;
+  var ldp=el('lotes_data_pesagem'); if(ldp) ldp.textContent=formatDateBR(state.data);
+
+  var pnf=el('painelNomeFazenda'); if(pnf) pnf.textContent=state.fazenda;
+  var pa=el('painelArea'); if(pa) pa.textContent = state.area>0 ? (state.area+' ha') : '—';
+  var pr=el('painelRebanho'); if(pr) pr.textContent = Math.round(censoReal.anm).toLocaleString('pt-BR')+' cab';
+  var pu=el('painelUaHa'); if(pu) pu.textContent = state.area>0 ? fmtPtBR(censoReal.peso/state.uaKg/state.area,2) : '—';
+  var pp=el('painelPesos'); if(pp) pp.textContent = state.pesoSaida+'kg / '+state.pesoCompra+'kg';
+
+  var projetadoUAHa = state.area>0 ? estoqueMedioUA.map(function(v){return v/state.area;}) : new Array(12).fill(0);
+  renderGraficoCapacidade(sim, mesesLabels, projetadoUAHa);
+
+  salvarFazendaAtual();
+}
+
+function formatDateBR(iso){
+  if(!iso) return '—';
+  var p=iso.split('-'); if(p.length<3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function renderAll(skipRead){
+  el('cfg_area').value=state.area;
+  el('cfg_pesosaida').value=state.pesoSaida;
+  el('cfg_pesocompra').value=state.pesoCompra;
+  el('cfg_uakg').value=state.uaKg;
+  el('cfg_uahamin').value=state.uaHaMin;
+  el('cfg_uahamax').value=state.uaHaMax;
+  el('cfg_modocompra').value=state.modoCompra;
+  el('cfg_alvopct').value=state.alvoPct;
+  el('cfg_compramin').value=state.compraMin;
+  el('card_troca_wrap').style.display = state.modoCompra==='troca' ? 'block' : 'none';
+  var fazSel=el('cfg_fazenda');
+  var known=Array.from(fazSel.options).some(function(o){return o.value===state.fazenda;});
+  if(known){ fazSel.value=state.fazenda; el('cfg_fazenda_outra_wrap').style.display='none'; }
+  else { fazSel.value='Outra...'; el('cfg_fazenda_outra_wrap').style.display='block'; el('cfg_fazenda_outra').value=state.fazenda; }
+  var areaRef=AREA_HA_CONHECIDA[state.fazenda], areaHintEl=el('area_hint');
+  if(areaHintEl) areaHintEl.textContent = areaRef!=null ? ('referência Control Pasto: '+areaRef.toLocaleString('pt-BR')+' ha — edite se mudou') : '';
+  calc(skipRead);
+  renderPlanos();
+}
+
+// ---------- PDF ----------
+function gerarPDF(){
+  readFormIntoState();
+  var planoAtivo=null;
+  if(state.planosConfirmados && state.planosConfirmados.length){
+    planoAtivo = state.planosConfirmados.find(function(p){return p.id===state.planoSelecionadoId;}) || state.planosConfirmados[state.planosConfirmados.length-1];
+  }
+  var sim=buildSimulacao();
+  var mesesLabels=[]; for(var i=0;i<12;i++){ var p=sim.mi[i]; mesesLabels.push(MESES[p.month]+'/'+p.year.toString().slice(2)); }
+  var saidaPorMes,compraPorMes,custoPorMes,capArr=[],projetadoUAHa=[];
+
+  if(planoAtivo){
+    mesesLabels=planoAtivo.mesesLabels.slice();
+    saidaPorMes=planoAtivo.saidaDist.slice();
+    compraPorMes=planoAtivo.compraDist.slice();
+    custoPorMes=planoAtivo.custoPorMes.slice();
+    capArr=planoAtivo.capArr.slice();
+    projetadoUAHa=planoAtivo.uaHaDist.slice();
+  } else {
+    saidaPorMes=new Array(12).fill(0); compraPorMes=new Array(12).fill(0);
+    sim.simNodes.forEach(function(n){
+      if(!n.fora && n.periodoExit<12) saidaPorMes[n.periodoExit]+=n.anm;
+      if(n.tag==='compra' && n.periodoEntry<12) compraPorMes[n.periodoEntry]+=n.anm;
+    });
+    var boundaries=[0]; for(var i=0;i<12;i++) boundaries.push(sim.mi[i].end);
+    var censos=boundaries.map(function(d){ return censoEmDia(sim,d); });
+    if(state.saldoModo==='manual'){
+      var distPdf=calcularDistribuicao(sim,saidaPorMes);
+      saidaPorMes=distPdf.saidaDist.slice();
+      compraPorMes=distPdf.compraDist.slice();
+      censos=calcularCensosDistribuidos(sim,saidaPorMes,compraPorMes,censoEmDia(sim,0));
+    }
+    for(var i=0;i<12;i++){capArr.push(efetivoCapacidade(sim.mi[i].month));projetadoUAHa.push(state.area>0?((censos[i].peso+censos[i+1].peso)/2/state.uaKg)/state.area:0);}
+    custoPorMes=new Array(12).fill(0);
+    if(state.saldoModo==='manual'){
+      compraPorMes.forEach(function(v,i){custoPorMes[i]=v*state.valorCabPadraoUSD;});
+    }else{
+      var compras=sim.simNodes.filter(function(n){return n.tag==='compra'||n.tag==='manual';});
+      compras.forEach(function(c){if(c.periodoEntry<12){var ov=state.overrides[c.id]||{},valor=ov.valorCabUSD!=null?ov.valorCabUSD:state.valorCabPadraoUSD;custoPorMes[c.periodoEntry]+=valor*c.anm;}});
+    }
+  }
+
+  var totS=saidaPorMes.reduce(function(a,b){return a+b;},0),totC=compraPorMes.reduce(function(a,b){return a+b;},0),totCusto=custoPorMes.reduce(function(a,b){return a+b;},0),pico=0;
+  custoPorMes.forEach(function(v,i){if(v>custoPorMes[pico])pico=i;});
+  var censoRealPdf=censoRealAgora(sim); var cabAtual=censoRealPdf.anm||0,uaAtual=state.area>0?(censoRealPdf.peso/state.uaKg)/state.area:0;
+
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  function cab(v){return Math.round(v||0).toLocaleString('pt-BR');}
+  function rodape(n,total){return '<div class="footer"><span>RURAL PASTAGEM · PLANEJAMENTO</span><span>Página '+n+' de '+total+'</span></div>';}
+  function mensal(linhas,total){var t='<table><thead><tr><th class="lbl">Indicador</th>';mesesLabels.forEach(function(m){t+='<th>'+m+'</th>';});if(total)t+='<th>Total</th>';t+='</tr></thead><tbody>';linhas.forEach(function(l,li){t+='<tr'+(li%2===1?' class="alt"':'')+'><td class="lbl">'+l[0]+'</td>';l[1].forEach(function(v){t+='<td class="'+(l[2]||'')+'">'+v+'</td>';});if(total)t+='<td class="gold">'+l[3]+'</td>';t+='</tr>';});return t+'</tbody></table>';}
+
+  var css='<style>'+
+    '@page{size:A4 portrait;margin:9mm}'+
+    '*{box-sizing:border-box}'+
+    ':root{--gold:#c99a3b;--green:#376b45;--blue2:#2d5f8a;--border:#d7ddd8;--txt2:#34463a;--txt3:#6b756f;}'+
+    'body{margin:0;background:#fff;color:#1e2b23;font-family:Arial,sans-serif;font-size:9.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '.page{page-break-after:always;padding:0;min-height:270mm}'+
+    '.page:last-child{page-break-after:auto}'+
+    '.head{background:#173c2b;color:#fff;border-bottom:4px solid #c99a3b;border-radius:4mm;padding:5mm 6mm;display:flex;justify-content:space-between;align-items:flex-end;page-break-inside:avoid;break-inside:avoid}'+
+    '.brand{font-size:8pt;letter-spacing:1.6px;font-weight:900;opacity:.8}'+
+    '.farm{font-size:19pt;font-weight:900;margin-top:1mm}'+
+    '.meta{text-align:right;font-size:7.5pt;line-height:1.5}'+
+    '.badge{margin-top:3mm;border-radius:3mm;padding:2.5mm 4mm;font-size:8pt;font-weight:900;page-break-inside:avoid;break-inside:avoid}'+
+    '.badge-ok{background:#eef3ea;border:1px solid #9db98d;color:#2f5c2f}'+
+    '.badge-warn{background:#fbeee0;border:1px solid #d9a35f;color:#8a4b0f}'+
+    '.title{font-size:13pt;color:#173c2b;margin:4mm 0 2mm;border-bottom:1px solid #d7ddd8;padding-bottom:1.5mm}'+
+    '.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin:3mm 0;page-break-inside:avoid;break-inside:avoid}'+
+    '.kpi{border:1px solid #d7ddd8;border-radius:3mm;background:#f7f7f5;padding:3mm}'+
+    '.kpi span{display:block;color:#6b756f;font-size:6.6pt;text-transform:uppercase;font-weight:900;letter-spacing:.3px}'+
+    '.kpi b{display:block;color:#173c2b;font-size:13pt;margin-top:1.5mm}'+
+    '.chart{border:1px solid #d7ddd8;border-radius:3mm;padding:2mm;background:#fff;page-break-inside:avoid;break-inside:avoid}'+
+    '.chart svg{max-height:70mm}.chart svg text{fill:#34463a}.chart svg line{stroke:#d7ddd8}'+
+    '.zoneRisco{fill:rgba(166,61,47,0.20)}.zoneFolga{fill:rgba(55,107,69,0.18)}'+
+    'table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:2mm;font-size:6.7pt}'+
+    'thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}'+
+    'th,td{border:1px solid #c8cfca;padding:1.2mm 0.5mm;text-align:center;overflow-wrap:anywhere}'+
+    'th{background:#173c2b;color:#fff;font-weight:900}'+
+    'td.lbl,th.lbl{text-align:left;background:#e8ece9;color:#173c2b;font-weight:900;width:23mm}'+
+    'tr.alt td:not(.lbl){background:#f7f7f5}'+
+    '.gold{color:#9a6b12;font-weight:900}.green{color:#376b45;font-weight:900}.red{color:#a63d2f;font-weight:900}'+
+    '.note{margin-top:3mm;padding:2.5mm 3mm;background:#f2eee1;border-left:3px solid #c99a3b;border-radius:2mm;color:#5f685f;page-break-inside:avoid;break-inside:avoid}'+
+    '.footer{margin-top:3mm;border-top:1px solid #d7ddd8;padding-top:1.5mm;color:#6b756f;font-size:6.6pt;display:flex;justify-content:space-between}'+
+    '@media print{button{display:none}}'+
+  '</style>';
+
+  var cenarioPdf = state.saldoModo==='manual'?'projeção com distribuição manual':(state.saldoModo==='sem'?'projeção sem compra prevista':'projeção automática com compra prevista');
+
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(state.fazenda)+' — Planejamento</title>'+css+'</head><body>';
+
+  var headHtml='<div class="head"><div><div class="brand">RURAL PASTAGEM · PLANEJAMENTO</div><div class="farm">'+esc(state.fazenda)+'</div></div><div class="meta">Ciclo '+mesesLabels[0]+' a '+mesesLabels[11]+'<br>Pesagem '+formatDateBR(state.data)+' · Emitido '+new Date().toLocaleDateString('pt-BR')+'</div></div>';
+  var badgeHtml = planoAtivo
+    ? '<div class="badge badge-ok">✅ PLANO CONFIRMADO: '+esc(planoAtivo.nome)+' — confirmado em '+new Date(planoAtivo.dataConfirmacao).toLocaleString('pt-BR')+'</div>'
+    : '<div class="badge badge-warn">⚠️ Nenhum plano confirmado ainda para esta fazenda — mostrando '+cenarioPdf+'. Confirme um plano na aba "8 · Planos Confirmados" para gerar um número oficial.</div>';
+
+  // PÁGINA 1 — Saída, compra e caixa (o que decide/manda pro diretor)
+  h+='<section class="page">'+headHtml+badgeHtml;
+  h+='<div class="kpis"><div class="kpi"><span>Área útil</span><b>'+fmtPtBR(state.area,0)+' ha</b></div><div class="kpi"><span>Rebanho atual</span><b>'+cab(cabAtual)+' cab</b></div><div class="kpi"><span>Lotação atual</span><b>'+fmtPtBR(uaAtual,2)+' UA/ha</b></div><div class="kpi"><span>Saída total no ciclo</span><b>'+cab(totS)+' cab</b></div><div class="kpi"><span>Compra total no ciclo</span><b>'+cab(totC)+' cab</b></div><div class="kpi"><span>Investimento total</span><b>'+fmtMoeda(totCusto)+'</b></div></div>';
+  h+='<h2 class="title">Saída, compra e desembolso mês a mês</h2><div class="chart">'+svgChartBars([{name:'Saída (cab)',data:saidaPorMes,varColor:'gold'},{name:'Compra (cab)',data:compraPorMes,varColor:'green'}],mesesLabels)+'</div>';
+  h+=mensal([['Saída (cab)',saidaPorMes.map(cab),'gold',cab(totS)],['Compra (cab)',compraPorMes.map(cab),'green',cab(totC)],['Necessidade de caixa',custoPorMes.map(function(v){return v?fmtMoeda(v):'—';}),'',fmtMoeda(totCusto)]],true);
+  h+='<div class="note"><b>Leitura gerencial:</b> o maior desembolso está previsto para '+(totCusto?mesesLabels[pico]:'—')+', no valor de '+fmtMoeda(custoPorMes[pico]||0)+'. Custo médio por cabeça: '+(totC?fmtMoeda(totCusto/totC):'—')+'.</div>';
+  h+=rodape(1,2)+'</section>';
+
+  // PÁGINA 2 — Lotação sazonal (contexto de capacidade da pastagem)
+  h+='<section class="page">'+headHtml;
+  h+='<h2 class="title">Lotação sazonal: capacidade-alvo × projeção</h2><div class="chart">'+svgChartLine2(capArr,projetadoUAHa,mesesLabels)+'</div>';
+  h+=mensal([['Capacidade-alvo (UA/ha)',capArr.map(function(v){return fmtPtBR(v,2);})],['Projetado (UA/ha)',projetadoUAHa.map(function(v,i){return '<span class="'+(v>capArr[i]?'red':'green')+'">'+fmtPtBR(v,2)+'</span>';})]],false);
+  h+='<div class="note">A curva de UA/ha usada aqui vem da aba "2 · Lotação Sazonal". Sempre que a compra, a saída ou os lotes mudarem, gere este relatório de novo.</div>';
+  h+=rodape(2,2)+'</section></body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(h); w.document.close();
+  setTimeout(function(){w.print();},650);
+}
+
+// ---------- INIT ----------
+carregarTema();
+carregarConsolidado();
+carregarFazenda(state.fazenda);
+</script>
+</body>
+</html>
