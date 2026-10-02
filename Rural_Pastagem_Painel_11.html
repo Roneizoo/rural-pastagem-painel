@@ -445,8 +445,7 @@ var AREA_HA_CONHECIDA={
   'Ypoti': 3646,
   'La Esperanza': 2059,
   'Cielo Azul': 3775,
-  'Bella Vista': 3102,
-  'Cerro Memby': 2100
+  'Bella Vista': 3102
   // Santa Clara e Santa Maria da Serra: sem Área Útil cadastrada no Control Pasto
   // (só existe Área Total de Pastura, que é outra métrica) — ficam de fora do
   // preenchimento automático até a área útil real ser informada.
@@ -553,9 +552,7 @@ function carregarFazenda(nome){
   if(raw){
     try{
       var d=JSON.parse(raw);
-      // se a fazenda já foi salva antes mas a área útil ainda está zerada (nunca foi preenchida),
-      // usa a referência do Control Pasto — sem isso só fazenda nova (nunca aberta) recebia o auto-preenchimento.
-      state.area = d.area || AREA_HA_CONHECIDA[nome] || 0;
+      state.area=d.area||0;
       state.data=d.data||new Date().toISOString().slice(0,10);
       state.pesoSaida=d.pesoSaida||360;
       state.pesoCompra=d.pesoCompra!=null?d.pesoCompra:180;
