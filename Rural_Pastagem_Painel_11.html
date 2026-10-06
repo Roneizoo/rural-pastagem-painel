@@ -1646,11 +1646,11 @@ function censoEmDia(sim,d){
 // Saldo do Rebanho); compras futuras aparecem nas próprias abas de Compra/Distribuição/Saldo, não aqui.
 function censoRealAgora(sim){
   var totalAnm=0, totalPeso=0;
-  sim.simNodes.forEach(function(n){
-    if(n.tag==='importado' && n.dEntry<=0 && 0<n.dExit){
-      totalAnm+=n.anm;
-      totalPeso+=n.anm*pesoEmDia(sim.mi,n.pvEntry,n.dEntry,0);
-    }
+  state.lotes.forEach(function(lote){
+    var anm=Number(lote.anm)||0;
+    var pv=Number(lote.pv)||0;
+    totalAnm+=anm;
+    totalPeso+=anm*pv;
   });
   return {anm:totalAnm, peso:totalPeso};
 }
