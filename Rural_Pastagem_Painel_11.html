@@ -320,6 +320,9 @@ input[type=file]{display:none}
       <input type="file" id="fileImportConsolidado" accept=".json" multiple style="display:none" onchange="importarPlanosConsolidado(event)">
       <button class="hbtn hbp" style="padding:8px 14px" onclick="gerarPDFConsolidado()">📄 Relatório PDF do Grupo</button>
       <button class="hbtn hbp" style="padding:8px 14px" onclick="exportarExcelConsolidado()">📊 Exportar Excel do Grupo</button>
+      <button class="hbtn hbp" style="padding:8px 14px" onclick="exportarPainel()">📤 Exportar Painel</button>
+      <label class="filebtn" for="fileImportPainel">📥 Importar Painel</label>
+      <input type="file" id="fileImportPainel" accept=".json" style="display:none" onchange="importarPainel(event)">
       <span class="hind" id="consolidadoInd"></span>
     </div>
     <div id="consolidado_lista" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div>
@@ -1312,6 +1315,64 @@ function carregarConsolidado(){
 }
 function salvarConsolidado(){ try{ localStorage.setItem(CONSOLIDADO_KEY, JSON.stringify(consolidadoState)); }catch(ex){} }
 
+// Backup completo do Painel do Grupo, independente da fazenda aberta.
+function validarPainel(payload){
+  if(!payload || payload.tipo!=='rural_pastagem_painel_grupo' || payload.versao!==1 ||
+     !payload.painel || !Array.isArray(payload.painel.planos)) throw new Error('Arquivo de painel inválido ou versão não suportada.');
+  var painel=JSON.parse(JSON.stringify(payload.painel)), ids={};
+  painel.planos.forEach(function(p){
+    if(!p || typeof p.id!=='string' || !/^cons_[a-zA-Z0-9_-]+$/.test(p.id) || ids[p.id] ||
+       typeof p.fazenda!=='string' || typeof p.nome!=='string' ||
+       !Array.isArray(p.mesesLabels) || !p.mesesLabels.length ||
+       p.mesesLabels.some(function(m){return typeof m!=='string' || !/^(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)\/\d{2}$/.test(m);}) ||
+       new Set(p.mesesLabels).size!==p.mesesLabels.length) throw new Error('Plano inválido no painel.');
+    ids[p.id]=true;
+    ['saidaDist','compraDist','custoPorMes'].forEach(function(campo){
+      if(!Array.isArray(p[campo]) || p[campo].length!==p.mesesLabels.length ||
+         p[campo].some(function(v){return typeof v!=='number' || !Number.isFinite(v) || v<0;})) throw new Error('Valores mensais inválidos.');
+    });
+    p.totalSaida=p.saidaDist.reduce(function(a,b){return a+b;},0);
+    p.totalCompra=p.compraDist.reduce(function(a,b){return a+b;},0);
+    p.totalCusto=p.custoPorMes.reduce(function(a,b){return a+b;},0);
+  });
+  return painel;
+}
+function exportarPainel(){
+  var payload={tipo:'rural_pastagem_painel_grupo',versao:1,dataExportacao:new Date().toISOString(),
+    painel:JSON.parse(JSON.stringify(consolidadoState)),fazendaAberta:consolidadoFazendaAberta};
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download='Rural_Pastagem_Painel_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  el('consolidadoInd').textContent='Painel exportado: '+consolidadoState.planos.length+' plano(s).';
+}
+function importarPainel(evt){
+  var file=evt.target.files && evt.target.files[0]; evt.target.value='';
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onerror=function(){alert('Não foi possível ler o arquivo.');};
+  reader.onload=function(e){
+    var payload,painel;
+    try{payload=JSON.parse(e.target.result); painel=validarPainel(payload);}
+    catch(ex){alert('Não foi possível importar o painel: '+ex.message); return;}
+    var aplicar=function(){
+      try{
+        var anterior=localStorage.getItem(CONSOLIDADO_KEY);
+        if(anterior) localStorage.setItem(CONSOLIDADO_KEY+'_antes_importacao',anterior);
+        localStorage.setItem(CONSOLIDADO_KEY,JSON.stringify(painel));
+      }catch(ex){alert('Não foi possível salvar o painel. Os dados atuais foram mantidos.'); return;}
+      consolidadoState=painel;
+      consolidadoFazendaAberta=painel.planos.some(function(p){return p.id===payload.fazendaAberta;})?payload.fazendaAberta:null;
+      renderConsolidado();
+      el('consolidadoInd').textContent='Painel importado: '+painel.planos.length+' plano(s).';
+    };
+    if(consolidadoState.planos.length) customConfirm('Importar '+painel.planos.length+' plano(s) e substituir o painel atual? Uma cópia do painel anterior será guardada neste navegador.',aplicar);
+    else aplicar();
+  };
+  reader.readAsText(file);
+}
+
 function importarPlanosConsolidado(evt){
   var files=Array.from(evt.target.files||[]);
   if(!files.length) return;
@@ -1646,11 +1707,11 @@ function censoEmDia(sim,d){
 // Saldo do Rebanho); compras futuras aparecem nas próprias abas de Compra/Distribuição/Saldo, não aqui.
 function censoRealAgora(sim){
   var totalAnm=0, totalPeso=0;
-  state.lotes.forEach(function(lote){
-    var anm=Number(lote.anm)||0;
-    var pv=Number(lote.pv)||0;
-    totalAnm+=anm;
-    totalPeso+=anm*pv;
+  sim.simNodes.forEach(function(n){
+    if(n.tag==='importado' && n.dEntry<=0 && 0<n.dExit){
+      totalAnm+=n.anm;
+      totalPeso+=n.anm*pesoEmDia(sim.mi,n.pvEntry,n.dEntry,0);
+    }
   });
   return {anm:totalAnm, peso:totalPeso};
 }
