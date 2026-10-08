@@ -1711,7 +1711,8 @@ function censoEmDia(sim,d){
 function censoRealAgora(sim){
   var totalAnm=0, totalPeso=0;
   sim.simNodes.forEach(function(n){
-    if(n.tag==='importado' && n.dEntry<=0 && 0<n.dExit){
+    // Previsão de saída não é baixa realizada: o estoque atual mantém todos os lotes reais incluídos.
+    if(n.tag==='importado' && n.dEntry<=0){
       totalAnm+=n.anm;
       totalPeso+=n.anm*pesoEmDia(sim.mi,n.pvEntry,n.dEntry,0);
     }
